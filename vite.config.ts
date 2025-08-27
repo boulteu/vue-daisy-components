@@ -4,7 +4,7 @@ import svgLoader from 'vite-svg-loader'
 import { resolve } from 'path'
 
 export default defineConfig({
-  plugins: [vue(), svgLoader()],
+  plugins: [vue(), svgLoader()] as any,
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
@@ -16,14 +16,9 @@ export default defineConfig({
       output: {
         globals: {
           vue: 'Vue'
-        },
-        // Optimize bundle size
-        manualChunks: {
-          'vue-composables': ['vue']
         }
       }
     },
-    // Optimize build
     minify: 'terser',
     sourcemap: true,
     target: 'es2018'

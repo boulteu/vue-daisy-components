@@ -1,44 +1,48 @@
 <template>
-  <div class="overflow-x-auto">
-    <!-- Header Controls -->
-    <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <!-- Bulk Actions (Left) -->
-      <BulkActions
-        v-if="enableSelection"
-        :selected-count="selectedData.length"
-        :actions="bulkActions"
-        @action="handleBulkAction"
-      />
+  <div class="relative">
+    <div class="mb-4" :class="sectionClasses">
+      <div v-if="actionsConfig?.actions" :class="subSectionClasses">
+        <Actions :actions="actionsConfig.actions" @action="handleAction" />
+      </div>
 
-      <!-- Controls (Right) - Always on the right -->
-      <div class="flex items-center gap-2 ml-auto">
+      <div class="flex-1" :class="{ 'justify-center': actionsConfig?.actions, [subSectionClasses]: true }">
+        <template v-if="enableSelection && selectedRows.size > 0">
+          <span class="text-sm text-base-content/70">
+            {{ selectedRows.size }} selected
+          </span>
+
+          <div :class="subSectionClasses">
+            <Actions :actions="bulkActions" @action="handleBulkAction" />
+          </div>
+        </template>
+      </div>
+
+      <div :class="subSectionClasses">
         <Export
-          :data="paginatedData"
+          v-if="exportFilename !== false"
+          :data="finalData"
           :columns="columns"
-          :filename="exportFilename"
+          :filename="getExportFilename()"
         />
 
         <Filters
+          v-if="hasFilterableColumns"
           :columns="columns"
-          :filters="filters"
+          :filters="currentFilters"
           :distinctValues="distinctValues"
           :resetFilters="resetFilters"
+          :getLabel="getColumnLabel"
           @update:filters="updateFilters"
         />
 
-        <Search
-          :value="search"
-          @update="search = $event"
-        />
+        <Search :value="search" @update="search = $event" />
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="relative">
-      <table class="table table-zebra w-full">
+    <div class="overflow-x-auto relative">
+      <table class="table w-full" :class="tableClass">
         <thead>
           <tr>
-            <!-- Selection Column -->
             <th v-if="enableSelection" class="w-12">
               <CheckBox
                 :checked="selectAll"
@@ -47,37 +51,41 @@
               />
             </th>
 
-            <!-- Data Columns -->
             <th
               v-for="(col, index) in columns"
               :key="index"
-              class="cursor-pointer select-none"
-              :aria-sort="sort.column === col.key ? (sort.ascending ? 'ascending' : 'descending') : 'none'"
-              @click="sortBy(col.key)"
+              :class="{ 'cursor-pointer select-none': col.sortable !== false }"
+              :aria-sort="getAriaSort(col)"
+              @click="col.sortable !== false && sortBy(col.key)"
             >
               <div class="flex items-center gap-2">
-                {{ col.label }}
-                <Sort :sort="sort" :column="col.key" />
+                {{ getColumnLabel(col) }}
+                <Sort
+                  v-if="col.sortable !== false"
+                  :sort="currentSort"
+                  :column="col.key"
+                />
               </div>
             </th>
           </tr>
         </thead>
+
         <tbody>
-          <tr v-if="paginatedData.length === 0">
+          <tr v-if="finalData.length === 0">
             <td :colspan="totalColumns" class="text-center py-8">
               <div class="flex flex-col items-center gap-2">
-                        <NoResultIcon class="w-8 h-8 text-base-content/60" />
-        <span class="text-base-content/70">No results found</span>
+                <NoResultIcon class="w-8 h-8 text-base-content/60" />
+                <span class="text-base-content/70">No results found</span>
               </div>
             </td>
           </tr>
+
           <tr 
-            v-for="(row, i) in paginatedData" 
+            v-for="(row, i) in finalData" 
             :key="i"
-            :class="{ 'bg-base-200': isSelected(i) }"
+            :class="{ '!bg-base-300': isSelected(i) }"
             @click="enableSelection && toggleRow(i)"
           >
-            <!-- Selection Checkbox -->
             <td v-if="enableSelection" class="w-12">
               <CheckBox
                 :checked="isSelected(i)"
@@ -86,186 +94,254 @@
               />
             </td>
 
-            <!-- Data Cells -->
-            <td 
-              v-for="(col, j) in columns" 
-              :key="j"
-              class="cursor-pointer"
-            >
+            <td v-for="(col, j) in columns" :key="j">
               <slot 
                 :name="`cell-${col.key}`" 
                 :row="row" 
                 :column="col" 
                 :value="row[col.key]"
               >
-                {{ formatCellValue(row[col.key], col) }}
+                <span>{{ formatCellValue(row[col.key]) }}</span>
               </slot>
             </td>
           </tr>
         </tbody>
       </table>
-
-      <!-- Loading Overlay -->
-      <div v-if="loading" class="absolute inset-0 bg-base-100/50 flex items-center justify-center">
-        <span class="loading loading-spinner loading-lg"></span>
-      </div>
     </div>
 
-    <!-- Footer -->
-    <div class="mt-4">
+    <div class="mt-4" :class="sectionClasses">
       <Pagination
         :page="page"
         :total-pages="totalPages"
         :per-page="perPage"
-        :total-items="sortedData.length"
+        :total-items="totalItems"
         :visible-pages="visiblePages"
-        :show-first-last="paginationConfig.showFirstLast"
-        :show-page-info="paginationConfig.showPageInfo"
+        :config="paginationConfig"
         @goto="setPage"
-        @update="perPage = $event"
+        @update="updatePerPage($event)"
         @next="nextPage"
         @prev="prevPage"
         @first="firstPage"
         @last="lastPage"
       />
     </div>
+
+    <LoadingOverlay v-if="loading" />
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch } from 'vue';
-  import type { ColumnState, PaginationConfig } from '../types';
+  import { ref, computed, watch, shallowRef } from 'vue';
+  import type { ColumnState, PaginationConfig, FinalPaginationConfig, ActionsConfig, SelectionConfig, SortState } from '../types';
 
-  import BulkActions from './BulkActions.vue';
+  import Actions from './Actions.vue';
   import CheckBox from './CheckBox.vue';
   import Export from './Export.vue';
   import Filters from './Filters.vue';
+  import LoadingOverlay from './LoadingOverlay.vue';
   import Pagination from './Pagination.vue';
   import Search from './Search.vue';
   import Sort from './Sort.vue';
   
+  import { useApiData } from '../composables/useApiData';
   import { useFilters } from '../composables/useFilters';
   import { usePagination } from '../composables/usePagination';
   import { useSearch } from '../composables/useSearch';
-  import { useSort } from '../composables/useSort';
   import { useSelection } from '../composables/useSelection';
-  import { CloseIcon, NoResultIcon } from '../icons';
+  import { useSort } from '../composables/useSort';
+  import { NoResultIcon } from '../icons';
 
   const props = withDefaults(defineProps<{
     columns: ColumnState[];
-    data: Record<string, any>[];
-    loading?: boolean;
-    enableSelection?: boolean;
+    data: Record<string, any>[] | string;
     paginationConfig?: PaginationConfig;
-    exportFilename?: string;
+    tableClass?: string;
+    exportFilename?: string | boolean;
+    actionsConfig?: ActionsConfig;
+    selectionConfig?: SelectionConfig;
   }>(), {
-    loading: false,
-    enableSelection: false,
-    paginationConfig: () => ({
-      maxVisiblePages: 7,
-      showFirstLast: true,
-      showPageInfo: true
-    }),
-    exportFilename: 'table-export'
+    tableClass: 'table-zebra',
+    paginationConfig: () => ({}),
+    exportFilename: true
   });
 
+  const emit = defineEmits<{
+    'bulk-action': [action: string, selectedData: Record<string, any>[]];
+    'action': [action: string];
+  }>();
+
+  // CSS classes
+  const sectionClasses = 'flex flex-col sm:flex-row justify-between items-center gap-4';
+  const subSectionClasses = 'flex items-center gap-2';
+
+  // Initialize pagination config with defaults
+  const paginationConfig = {
+    maxVisiblePages: 5,
+    showFirstLast: true,
+    showPageInfo: true,
+    perPageOptions: [5, 10, 25, 50],
+    perPage: 10,
+    ...props.paginationConfig
+  } as FinalPaginationConfig;
+
+  // Search state
   const search = ref('');
+
+  // Computed properties
+  const isApiMode = computed(() => typeof props.data === 'string');
+  const enableSelection = computed(() => !!props.selectionConfig);
+  const loading = computed(() => isApiMode.value && apiLoading.value);
+  const hasFilterableColumns = computed(() => props.columns.some(col => col.filterable !== false));
+
+  // API mode state
+  const apiFilters = ref<Record<string, string[]>>({});
+  const apiSort = ref<SortState>({ column: null, ascending: true });
+
+  // Static data with shallowRef optimization
+  const staticDataRef = shallowRef<Record<string, any>[]>([]);
+
+  // Update static data when props change
+  watch(() => props.data, (newData) => {
+    if (!isApiMode.value && Array.isArray(newData)) {
+      staticDataRef.value = newData;
+    }
+  }, { immediate: true });
+
+  // Data processing pipeline
   const { filteredData: searchFiltered } = useSearch(
     search,
-    computed(() => props.data),
+    computed(() => isApiMode.value ? [] : staticDataRef.value),
     props.columns.map(c => c.key)
   );
 
-  const { filters, filtered, resetFilters } = useFilters(() => searchFiltered.value, props.columns);
+  const {
+    filters: staticFilters,
+    filtered,
+    resetFilters: staticResetFilters,
+    getDistinctValues
+  } = useFilters(() => searchFiltered.value, props.columns);
 
-  const { sort, sortBy, sortedData } = useSort(filtered);
+  const { sort: staticSort, sortBy, sortedData } = useSort(filtered, props.columns);
 
-  const perPage = ref(10);
-  const { 
+  // API data handling
+  const {
+    data: apiData, 
+    total: apiTotal, 
+    loading: apiLoading, 
+    distinctValues: apiDistinctValues, 
+    fetchData: apiFetchData 
+  } = useApiData(isApiMode.value ? props.data as string : '');
+
+  // Current state (API or static)
+  const currentFilters = computed(() => isApiMode.value ? apiFilters.value : staticFilters);
+  const currentSort = computed(() => isApiMode.value ? apiSort.value : staticSort.value);
+  const distinctValues = computed(() => isApiMode.value ? apiDistinctValues.value : getDistinctValues());
+
+  // Pagination
+  const {
     page, 
-    totalPages, 
-    paginatedData, 
-    visiblePages,
     setPage, 
     nextPage, 
     prevPage, 
     firstPage, 
-    lastPage 
-  } = usePagination(sortedData, perPage, props.paginationConfig);
-
-  // Selection functionality
-  const { 
-    selectAll, 
-    indeterminate, 
-    selectedData, 
-    toggleRow, 
-    clearSelection, 
-    isSelected 
-  } = useSelection(paginatedData);
-
-  const distinctValues = computed(() =>
-    Object.fromEntries(
-      props.columns.map(col => {
-        const values = searchFiltered.value.map(row => row[col.key]);
-        const strings = values.map(v => String(v)).filter(Boolean);
-        return [col.key, Array.from(new Set(strings)).sort()];
-      })
-    )
+    lastPage, 
+    totalPages, 
+    visiblePages,
+    perPage,
+    updatePerPage
+  } = usePagination(
+    isApiMode.value ? computed(() => []) : sortedData,
+    paginationConfig
   );
 
-  const totalColumns = computed(() => 
-    props.columns.length + (props.enableSelection ? 1 : 0)
-  );
-
-  // Format cell values based on column type
-  function formatCellValue(value: any, column: ColumnState): string {
-    if (value == null) return '';
+  // Final data
+  const finalData = computed(() => {
+    if (isApiMode.value) return apiData.value;
     
-    switch (column.type) {
-      case 'date':
-        return value instanceof Date ? value.toLocaleDateString() : String(value);
-      case 'number':
-        return typeof value === 'number' ? value.toLocaleString() : String(value);
-      case 'boolean':
-        return value ? 'Yes' : 'No';
-      default:
-        return String(value);
-    }
-  }
-
-  // Bulk actions configuration
-  const bulkActions = computed(() => [
-    {
-      action: 'clear',
-      variant: 'default' as const,
-      tooltip: 'Clear Selection',
-      icon: CloseIcon
-    }
-  ]);
-
-  // Handle bulk actions
-  function handleBulkAction(action: string) {
-    switch (action) {
-      case 'clear':
-        clearSelection();
-        break;
-      // Add more actions here as needed
-      // case 'delete':
-      //   handleDelete();
-      //   break;
-      // case 'edit':
-      //   handleEdit();
-      //   break;
-    }
-  }
-
-  // Update filters function
-  function updateFilters(newFilters: Record<string, string[]>) {
-    Object.assign(filters, newFilters);
-  }
-
-  // Reset to first page when filters change
-  watch([perPage, search, filters], () => {
-    setPage(1);
+    const start = (page.value - 1) * perPage.value;
+    const end = start + perPage.value;
+    return sortedData.value.slice(start, end);
   });
+
+  const totalItems = computed(() => isApiMode.value ? apiTotal.value : sortedData.value.length);
+  const totalColumns = computed(() => props.columns.length + (enableSelection.value ? 1 : 0));
+
+  // Selection
+  const { selectedRows, selectAll, indeterminate, toggleRow, isSelected, clearSelection } = useSelection(finalData);
+
+  // API parameters
+  const apiParams = computed(() => ({
+    filters: apiFilters.value,
+    search: search.value,
+    sort: apiSort.value,
+    page: page.value,
+    perPage: perPage.value
+  }));
+
+  // Bulk actions
+  const bulkActions = computed(() => {
+    if (!enableSelection.value) return [];
+    
+    return [
+      { action: 'clear', variant: 'default' as const, tooltip: 'Clear Selection', icon: 'close' },
+      ...(props.selectionConfig?.actions || [])
+    ];
+  });
+
+  // Watchers
+  if (isApiMode.value) {
+    watch([apiFilters, search, apiSort, page, perPage], () => {
+      apiFetchData(apiParams.value);
+    }, { immediate: true, deep: true });
+  } else {
+    watch([perPage, search, currentFilters], () => {
+      setPage(1);
+    });
+  }
+
+  // Utils
+  const getColumnLabel = (col: ColumnState): string => col.label || col.key.charAt(0).toUpperCase() + col.key.slice(1);
+
+  const getAriaSort = (col: ColumnState): 'ascending' | 'descending' | 'none' => {
+    if (col.sortable === false) return 'none';
+    
+    const sort = currentSort.value;
+    if (sort.column !== col.key) return 'none';
+    
+    return sort.ascending ? 'ascending' : 'descending';
+  }
+
+  const formatCellValue = (value: any, col?: ColumnState): string => (value == null) ? '' : String(value);
+
+  const getExportFilename = (): string => props.exportFilename === true ? 'table-export' : (props.exportFilename as string);
+
+  const updateFilters = (newFilters: Record<string, string[]>) => {
+    if (isApiMode.value) {
+      apiFilters.value = { ...newFilters };
+    } else {
+      Object.assign(staticFilters, newFilters);
+    }
+  }
+
+  const resetFilters = () => {
+    if (isApiMode.value) {
+      apiFilters.value = {};
+    } else {
+      staticResetFilters();
+    }
+  }
+
+  // Event handlers
+  const handleAction = (action: string) => {
+    emit('action', action);
+  }
+
+  const handleBulkAction = (action: string) => {
+    if (action === 'clear') {
+      clearSelection();
+    } else {
+      const selectedData = Array.from(selectedRows.value).map(index => finalData.value[index]);
+      emit('bulk-action', action, selectedData);
+    }
+  }
 </script>

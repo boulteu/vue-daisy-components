@@ -1,22 +1,21 @@
-import { ref, computed, type ComputedRef, type Ref } from 'vue';
-import type { PaginationConfig } from '../types';
+import { ref, computed, type ComputedRef } from 'vue';
+import type { FinalPaginationConfig } from '../types';
 
-export function usePagination<T>(
+export const usePagination = <T>(
   data: ComputedRef<T[]>, 
-  perPage: Ref<number>,
-  config: PaginationConfig = {}
-) {
-  const { maxVisiblePages = 7, showFirstLast = true, showPageInfo = true } = config;
+  config: FinalPaginationConfig
+) => {
+  const { maxVisiblePages = 7 } = config;
   const page = ref(1);
+  const perPageRef = ref(config.perPage);
 
-  const totalPages = computed(() => Math.ceil(data.value.length / perPage.value));
+  const totalPages = computed(() => Math.ceil(data.value.length / perPageRef.value));
 
   const paginatedData = computed(() => {
-    const start = (page.value - 1) * perPage.value;
-    return data.value.slice(start, start + perPage.value);
+    const start = (page.value - 1) * perPageRef.value;
+    return data.value.slice(start, start + perPageRef.value);
   });
 
-  // Smart pagination - only show relevant pages
   const visiblePages = computed(() => {
     const total = totalPages.value;
     const current = page.value;
@@ -29,7 +28,6 @@ export function usePagination<T>(
     let start = Math.max(1, current - halfVisible);
     let end = Math.min(total, start + maxVisiblePages - 1);
     
-    // Adjust if we're near the end
     if (end === total) {
       start = Math.max(1, end - maxVisiblePages + 1);
     }
@@ -37,33 +35,37 @@ export function usePagination<T>(
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   });
 
-  function setPage(newPage: number) {
+  const setPage = (newPage: number) => {
     page.value = Math.min(Math.max(newPage, 1), totalPages.value);
   }
 
-  function nextPage() {
+  const nextPage = () => {
     if (page.value < totalPages.value) {
       setPage(page.value + 1);
     }
   }
 
-  function prevPage() {
+  const prevPage = () => {
     if (page.value > 1) {
       setPage(page.value - 1);
     }
   }
 
-  function firstPage() {
+  const firstPage = () => {
     setPage(1);
   }
 
-  function lastPage() {
+  const lastPage = () => {
     setPage(totalPages.value);
+  }
+
+  const updatePerPage = (newPerPage: number) => {
+    perPageRef.value = newPerPage;
   }
 
   return { 
     page, 
-    perPage, 
+    perPage: perPageRef, 
     totalPages, 
     paginatedData, 
     visiblePages,
@@ -71,6 +73,7 @@ export function usePagination<T>(
     nextPage, 
     prevPage, 
     firstPage, 
-    lastPage 
+    lastPage,
+    updatePerPage
   };
 }

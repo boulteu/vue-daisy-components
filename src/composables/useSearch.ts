@@ -1,30 +1,39 @@
 import { ref, computed, watch, type Ref, type ComputedRef } from 'vue';
 
-export function useSearch(
+export const useSearch = (
   searchQuery: Ref<string>,
   data: ComputedRef<any[]>,
   searchableColumns: string[]
-) {
+) => {
   const debouncedSearch = ref('');
   let debounceTimer: NodeJS.Timeout | null = null;
 
-  // Debounce the search input
   watch(searchQuery, (newValue) => {
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       debouncedSearch.value = newValue;
-    }, 300); // 300ms delay
+    }, 300);
   }, { immediate: true });
 
   const filteredData = computed(() => {
-    if (!debouncedSearch.value.trim()) return data.value;
+    if (!debouncedSearch.value.trim()) {
+      return data.value;
+    }
     
     const searchTerm = debouncedSearch.value.toLowerCase();
+    const searchWords = searchTerm.split(/\s+/).filter(word => word.length > 0);
+    
+    if (searchWords.length === 0) {
+      return data.value;
+    }
+    
     return data.value.filter(row => {
-      return searchableColumns.some(col => {
-        const value = row[col];
-        if (value == null) return false;
-        return String(value).toLowerCase().includes(searchTerm);
+      return searchWords.every(word => {
+        return searchableColumns.some(col => {
+          const value = row[col];
+          if (value == null) return false;
+          return String(value).toLowerCase().includes(word);
+        });
       });
     });
   });

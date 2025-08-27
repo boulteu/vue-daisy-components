@@ -1,7 +1,7 @@
 import { ref, computed, type Ref } from 'vue';
-import type { SortState, SortConfig } from '../types';
+import type { SortState, ColumnState } from '../types';
 
-export function useSort(filtered: Ref<any[]>) {
+export const useSort = (filtered: Ref<any[]>, columns: ColumnState[]) => {
   const sort = ref<SortState>({
     column: null,
     ascending: true,
@@ -10,7 +10,10 @@ export function useSort(filtered: Ref<any[]>) {
   let lastSortHash = '';
   let memoizedSorted: any[] = [];
 
-  function sortBy(key: string) {
+  const sortBy = (key: string) => {
+    const column = columns.find(col => col.key === key);
+    if (column && column.sortable === false) return;
+    
     if (sort.value.column === key) {
       sort.value.ascending = !sort.value.ascending;
     } else {
@@ -22,24 +25,20 @@ export function useSort(filtered: Ref<any[]>) {
   const sortedData = computed(() => {
     if (!sort.value.column) return filtered.value;
     
-    // Create a hash for memoization
     const sortHash = `${sort.value.column}-${sort.value.ascending}-${filtered.value.length}`;
     
-    // If sort hasn't changed and we have memoized result, return it
     if (sortHash === lastSortHash && memoizedSorted.length > 0) {
       return memoizedSorted;
     }
     
     const result = [...filtered.value].sort((a, b) => {
-      const valA = a[sort.value.column];
-      const valB = b[sort.value.column];
+      const valA = a[sort.value.column!];
+      const valB = b[sort.value.column!];
       
-      // Handle null/undefined values
       if (valA == null && valB == null) return 0;
       if (valA == null) return sort.value.ascending ? -1 : 1;
       if (valB == null) return sort.value.ascending ? 1 : -1;
       
-      // Handle different data types
       if (typeof valA === 'number' && typeof valB === 'number') {
         return sort.value.ascending ? valA - valB : valB - valA;
       }
@@ -48,7 +47,6 @@ export function useSort(filtered: Ref<any[]>) {
         return sort.value.ascending ? valA.getTime() - valB.getTime() : valB.getTime() - valA.getTime();
       }
       
-      // String comparison
       const strA = String(valA).toLowerCase();
       const strB = String(valB).toLowerCase();
       
@@ -57,7 +55,6 @@ export function useSort(filtered: Ref<any[]>) {
       return sort.value.ascending ? comparison : -comparison;
     });
     
-    // Memoize the result
     lastSortHash = sortHash;
     memoizedSorted = result;
     

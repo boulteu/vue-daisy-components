@@ -1,45 +1,39 @@
-// Global types for vue-daisy-table
-
 export interface ColumnState {
   key: string;
-  label: string;
+  label?: string;
   sortable?: boolean;
   filterable?: boolean;
-  type?: 'string' | 'number' | 'date' | 'boolean';
-  width?: string;
-  align?: 'left' | 'center' | 'right';
 }
 
 export interface PaginationConfig {
   maxVisiblePages?: number;
   showFirstLast?: boolean;
   showPageInfo?: boolean;
+  perPageOptions?: number[];
+  perPage?: number;
+}
+
+export type FinalPaginationConfig = Required<PaginationConfig>;
+
+export interface ActionsConfig {
+  actions?: Action[];
+}
+
+export interface SelectionConfig {
+  actions?: Action[];
+}
+
+export interface Action {
+  action: string;
+  variant?: 'default' | 'secondary' | 'error' | 'success' | 'warning' | 'info' | 'outline';
+  icon?: string | any; // string for icon name, any for component
+  disabled?: boolean;
+  tooltip?: string;
 }
 
 export interface SortState {
   column: string | null;
   ascending: boolean;
-}
-
-export interface SortConfig {
-  column: string;
-  type?: 'string' | 'number' | 'date';
-  customSort?: (a: any, b: any) => number;
-}
-
-export interface Action {
-  label?: string;
-  action: string;
-  variant?: 'default' | 'secondary' | 'error' | 'success' | 'warning' | 'info' | 'outline';
-  icon?: any;
-  disabled?: boolean;
-  tooltip?: string;
-}
-
-export interface SelectionState {
-  selectedRows: Set<number>;
-  selectAll: boolean;
-  indeterminate: boolean;
 }
 
 export interface ExportOptions {
@@ -48,4 +42,24 @@ export interface ExportOptions {
   delimiter?: string;
   dateFormat?: string;
   numberFormat?: string;
+}
+
+export interface ApiRequestParams {
+  filters: Record<string, string[]>;
+  search: string;
+  sort: {
+    column: string | null;
+    ascending: boolean;
+  };
+  page: number;
+  perPage: number;
+}
+
+export interface ApiResponse {
+  data: Record<string, any>[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+  distinctValues: Record<string, any[]>;
 } 

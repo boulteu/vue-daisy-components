@@ -10,7 +10,6 @@
 
   <dialog class="modal" :open="showFilter" @click.self="showFilter = false">
     <form method="dialog" class="modal-box max-w-4xl max-h-[80vh] overflow-auto relative">
-      <!-- Close button in top-right corner -->
       <button
         type="button"
         class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
@@ -24,13 +23,14 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div v-for="col in filterableColumns" :key="col.key" class="space-y-2">
-          <label class="label font-semibold mb-1">{{ col.label }}</label>
+          <label class="label font-semibold mb-1">
+            {{ getLabel(col) }}
+          </label>
           
-          <!-- Multi-select Filter -->
           <MultiSelect
             :model-value="getFilterValue(col.key)"
-            :options="distinctValues[col.key]"
-            :placeholder="`Select ${col.label}...`"
+            :options="distinctValues[col.key] || []"
+            :placeholder="`Select ${getLabel(col)}...`"
             @update:model-value="updateFilter(col.key, $event)"
           />
         </div>
@@ -54,6 +54,7 @@
     filters: Record<string, string[]>;
     distinctValues: Record<string, string[]>;
     resetFilters: () => void;
+    getLabel: (column: ColumnState) => string;
   }>();
 
   const emit = defineEmits<{
@@ -62,26 +63,18 @@
 
   const showFilter = ref(false);
 
-  // Only show filterable columns
   const filterableColumns = computed(() => 
     props.columns.filter(col => col.filterable !== false)
   );
 
-  // Get filter value safely
-  function getFilterValue(colKey: string): string[] {
-    return props.filters[colKey] || [];
-  }
+  const getFilterValue = (colKey: string): string[] => props.filters[colKey] || [];
 
-  // Update filter value
-  function updateFilter(colKey: string, selectedOptions: string[]) {
-    // Create new filters object
+  const updateFilter = (colKey: string, selectedOptions: string[]) => {
     const newFilters = { ...props.filters };
     newFilters[colKey] = selectedOptions;
-    
     emit('update:filters', newFilters);
   }
 
-  // Count active filters
   const activeFiltersCount = computed(() => {
     let count = 0;
     Object.values(props.filters).forEach(filter => {

@@ -1,4 +1,5 @@
-import DaisyDataTable from './components/DataTable.vue'
+import DataTable from './components/DataTable.vue'
+import MultiSelect from './components/MultiSelect.vue'
 
-export { DaisyDataTable }
-export default DaisyDataTable
+export { DataTable, MultiSelect }
+export default DataTable

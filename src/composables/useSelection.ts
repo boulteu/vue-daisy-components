@@ -1,6 +1,6 @@
 import { ref, computed, type Ref } from 'vue';
 
-export function useSelection(data: Ref<any[]>, rowKey?: string) {
+export const useSelection = (data: Ref<any[]>) => {
   const selectedRows = ref<Set<number>>(new Set());
   
   const selectAll = computed({
@@ -22,7 +22,7 @@ export function useSelection(data: Ref<any[]>, rowKey?: string) {
     data.value.filter((_, index) => selectedRows.value.has(index))
   );
 
-  function toggleRow(index: number) {
+  const toggleRow = (index: number) => {
     if (selectedRows.value.has(index)) {
       selectedRows.value.delete(index);
     } else {
@@ -30,21 +30,19 @@ export function useSelection(data: Ref<any[]>, rowKey?: string) {
     }
   }
 
-  function selectRow(index: number) {
+  const selectRow = (index: number) => {
     selectedRows.value.add(index);
   }
 
-  function deselectRow(index: number) {
+  const deselectRow = (index: number) => {
     selectedRows.value.delete(index);
   }
 
-  function clearSelection() {
+  const clearSelection = () => {
     selectedRows.value.clear();
   }
 
-  function isSelected(index: number): boolean {
-    return selectedRows.value.has(index);
-  }
+  const isSelected = (index: number): boolean => selectedRows.value.has(index);
 
   return {
     selectedRows,
@@ -57,4 +55,4 @@ export function useSelection(data: Ref<any[]>, rowKey?: string) {
     clearSelection,
     isSelected
   };
-} 
+}

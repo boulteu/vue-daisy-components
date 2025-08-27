@@ -10,7 +10,7 @@
   import { SortIcon, SortAscIcon, SortDescIcon } from '../icons';
   import type { SortState } from '../types';
 
-  const props = defineProps<{
+  defineProps<{
     sort: SortState;
     column: string;
   }>();

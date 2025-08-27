@@ -13,42 +13,38 @@
 </template>
 
 <script setup lang="ts">
-interface Props {
-  checked?: boolean;
-  indeterminate?: boolean;
-}
+  withDefaults(defineProps<{
+    checked?: boolean;
+    indeterminate?: boolean;
+  }>(), {
+    checked: false,
+    indeterminate: false
+  });
 
-interface Emits {
-  'update:checked': [value: boolean];
-  'click': [event: Event];
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  checked: false,
-  indeterminate: false
-});
-
-defineEmits<Emits>();
+  defineEmits<{
+    'update:checked': [value: boolean];
+    'click': [event: Event];
+  }>();
 </script>
 
 <style scoped>
-.custom-checkbox:focus {
-  background-color: transparent !important;
-  border-color: hsl(var(--bc) / 0.2) !important;
-}
+  .custom-checkbox:focus {
+    background-color: transparent !important;
+    border-color: hsl(var(--bc) / 0.2) !important;
+  }
 
-.custom-checkbox:focus-visible {
-  background-color: transparent !important;
-  border-color: hsl(var(--bc) / 0.2) !important;
-}
+  .custom-checkbox:focus-visible {
+    background-color: transparent !important;
+    border-color: hsl(var(--bc) / 0.2) !important;
+  }
 
-.custom-checkbox:indeterminate {
-  background-color: hsl(var(--bc) / 0.2) !important;
-  border-color: hsl(var(--bc) / 0.3) !important;
-}
+  .custom-checkbox:indeterminate {
+    background-color: hsl(var(--bc) / 0.2) !important;
+    border-color: hsl(var(--bc) / 0.3) !important;
+  }
 
-.custom-checkbox:checked {
-  background-color: hsl(var(--bc) / 0.2) !important;
-  border-color: hsl(var(--bc) / 0.3) !important;
-}
+  .custom-checkbox:checked {
+    background-color: hsl(var(--bc) / 0.2) !important;
+    border-color: hsl(var(--bc) / 0.3) !important;
+  }
 </style> 
