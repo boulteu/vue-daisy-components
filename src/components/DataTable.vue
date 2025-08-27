@@ -56,7 +56,7 @@
               :key="index"
               :class="{ 'cursor-pointer select-none': col.sortable !== false }"
               :aria-sort="getAriaSort(col)"
-              @click="col.sortable !== false && sortBy(col.key)"
+              @click="col.sortable !== false && handleSort(col.key)"
             >
               <div class="flex items-center gap-2">
                 {{ getColumnLabel(col) }}
@@ -250,14 +250,15 @@
     perPage,
     updatePerPage
   } = usePagination(
-    isApiMode.value ? computed(() => []) : sortedData,
+    isApiMode.value ? computed(() => Array.from({ length: apiTotal.value }, (_, i) => i)) : sortedData,
     paginationConfig
   );
 
   // Final data
   const finalData = computed(() => {
-    if (isApiMode.value) return apiData.value;
+    if (isApiMode.value) return apiData.value || [];
     
+    if (!sortedData.value) return [];
     const start = (page.value - 1) * perPage.value;
     const end = start + perPage.value;
     return sortedData.value.slice(start, end);
@@ -289,15 +290,17 @@
   });
 
   // Watchers
-  if (isApiMode.value) {
-    watch([apiFilters, search, apiSort, page, perPage], () => {
+  watch([apiFilters, search, apiSort, page, perPage], () => {
+    if (isApiMode.value) {
       apiFetchData(apiParams.value);
-    }, { immediate: true, deep: true });
-  } else {
-    watch([perPage, search, currentFilters], () => {
+    }
+  }, { immediate: true, deep: true });
+
+  watch([perPage, search, currentFilters], () => {
+    if (!isApiMode.value) {
       setPage(1);
-    });
-  }
+    }
+  });
 
   // Utils
   const getColumnLabel = (col: ColumnState): string => col.label || col.key.charAt(0).toUpperCase() + col.key.slice(1);
@@ -332,6 +335,18 @@
   }
 
   // Event handlers
+  const handleSort = (column: string) => {
+    if (isApiMode.value) {
+      if (apiSort.value.column === column) {
+        apiSort.value.ascending = !apiSort.value.ascending;
+      } else {
+        apiSort.value = { column, ascending: true };
+      }
+    } else {
+      sortBy(column);
+    }
+  }
+
   const handleAction = (action: string) => {
     emit('action', action);
   }
