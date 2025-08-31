@@ -8,7 +8,7 @@
   >
     <button
       class="btn btn-sm"
-      :class="`btn-${action.variant}`"
+      :class="getButtonClass(action.variant)"
       :disabled="action.disabled"
       @click="$emit('action', action.action)"
     >
@@ -32,6 +32,21 @@
   defineEmits<{
     'action': [actionType: string];
   }>();
+
+  const getButtonClass = (variant: string | undefined) => {
+    const variantClasses = {
+      'primary': 'btn-primary',
+      'secondary': 'btn-secondary',
+      'success': 'btn-success',
+      'warning': 'btn-warning',
+      'error': 'btn-error',
+      'info': 'btn-info',
+      'ghost': 'btn-ghost',
+      'link': 'btn-link',
+      'neutral': 'btn-neutral'
+    };
+    return variantClasses[variant as keyof typeof variantClasses] || '';
+  };
 </script>
 
 <style scoped>
