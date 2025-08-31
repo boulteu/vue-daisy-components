@@ -229,7 +229,8 @@
     total: apiTotal, 
     loading: apiLoading, 
     distinctValues: apiDistinctValues, 
-    fetchData: apiFetchData 
+    fetchData: apiFetchData,
+    clearCache: apiClearCache
   } = useApiData(isApiMode.value ? props.data as string : '');
 
   // Current state (API or static)
@@ -359,4 +360,15 @@
       emit('bulk-action', action, selectedData);
     }
   }
+
+  const reloadData = () => {
+    if (isApiMode.value) {
+      apiClearCache();
+      apiFetchData(apiParams.value);
+    }
+  }
+
+  defineExpose({
+    reloadData
+  });
 </script>

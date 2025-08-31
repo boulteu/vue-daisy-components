@@ -6,19 +6,20 @@
   import { computed } from 'vue';
   import {
     AddIcon,
-    EditIcon,
+    ChevronDownIcon,
+    CloseIcon,
     DeleteIcon,
     DownloadIcon,
+    EditIcon,
     EyeIcon,
-    TrashIcon,
-    CloseIcon,
     FilterIcon,
+    NoResultIcon,
+    RefreshIcon,
     SearchIcon,
     SortIcon,
     SortAscIcon,
     SortDescIcon,
-    ChevronDownIcon,
-    NoResultIcon,
+    TrashIcon
   } from '../icons';
 
   const props = defineProps<{
@@ -27,19 +28,20 @@
 
   const iconMap = {
     'add': AddIcon,
-    'edit': EditIcon,
+    'chevron-down': ChevronDownIcon,
+    'close': CloseIcon,
     'delete': DeleteIcon,
     'download': DownloadIcon,
+    'edit': EditIcon,
     'eye': EyeIcon,
-    'trash': TrashIcon,
-    'close': CloseIcon,
     'filter': FilterIcon,
+    'no-result': NoResultIcon,
+    'refresh': RefreshIcon,
     'search': SearchIcon,
     'sort': SortIcon,
     'sort-asc': SortAscIcon,
     'sort-desc': SortDescIcon,
-    'chevron-down': ChevronDownIcon,
-    'no-result': NoResultIcon,
+    'trash': TrashIcon
   };
 
   const iconComponent = computed(() => {

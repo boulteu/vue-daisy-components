@@ -5,7 +5,7 @@ export const usePagination = <T>(
   data: ComputedRef<T[]>, 
   config: FinalPaginationConfig
 ) => {
-  const { maxVisiblePages = 7 } = config;
+  const maxVisiblePages = typeof config.maxVisiblePages === 'number' ? config.maxVisiblePages : 5;
   const page = ref(1);
   const perPageRef = ref(config.perPage);
 

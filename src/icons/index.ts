@@ -7,6 +7,7 @@ import EditIcon from "./edit.svg";
 import EyeIcon from "./eye.svg";
 import FilterIcon from "./filter.svg";
 import NoResultIcon from "./no-result.svg";
+import RefreshIcon from "./refresh.svg";
 import SearchIcon from "./search.svg";
 import SortIcon from "./sort.svg";
 import SortAscIcon from "./sort-asc.svg";
@@ -23,9 +24,10 @@ export {
   EyeIcon,
   FilterIcon,
   NoResultIcon,
+  RefreshIcon,
   SearchIcon,
   SortIcon,
   SortAscIcon,
   SortDescIcon,
-  TrashIcon,
+  TrashIcon
 };

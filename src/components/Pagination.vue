@@ -72,7 +72,7 @@
 
   <select
     :value="perPage"
-    @change="$emit('update', Number(($event.target as HTMLInputElement).value))"
+    @change="handlePerPageChange"
     class="select select-sm w-24 p-1 focus:outline-none focus:ring-0 focus:border-neutral"
     :class="{ 'ml-auto': totalPages <= 1 }"
     title="Items per page"
@@ -97,8 +97,16 @@
     config: FinalPaginationConfig;
   }>();
 
-  defineEmits(['goto', 'update', 'next', 'prev', 'first', 'last']);
+  const emit = defineEmits(['goto', 'update', 'next', 'prev', 'first', 'last']);
 
   const startItem = computed(() => (props.page - 1) * props.perPage + 1);
   const endItem = computed(() => Math.min(props.page * props.perPage, props.totalItems));
+
+  const handlePerPageChange = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    const value = Number(target.value);
+    if (!isNaN(value) && value > 0) {
+      emit('update', value);
+    }
+  };
 </script>
