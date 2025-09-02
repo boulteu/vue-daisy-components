@@ -21,6 +21,7 @@ export interface ActionsConfig {
 
 export interface SelectionConfig {
   actions?: Action[];
+  clearSelection?: boolean;
 }
 
 export interface Action {

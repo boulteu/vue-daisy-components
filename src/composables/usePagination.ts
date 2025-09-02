@@ -1,19 +1,19 @@
-import { ref, computed, type ComputedRef } from 'vue';
+import { ref, computed, type Ref, type ComputedRef } from 'vue';
 import type { FinalPaginationConfig } from '../types';
 
 export const usePagination = <T>(
-  data: ComputedRef<T[]>, 
+  data: ComputedRef<T[]>,
+  perPage: Ref<number>,
   config: FinalPaginationConfig
 ) => {
   const maxVisiblePages = typeof config.maxVisiblePages === 'number' ? config.maxVisiblePages : 5;
   const page = ref(1);
-  const perPageRef = ref(config.perPage);
 
-  const totalPages = computed(() => Math.ceil(data.value.length / perPageRef.value));
+  const totalPages = computed(() => Math.ceil(data.value.length / perPage.value));
 
   const paginatedData = computed(() => {
-    const start = (page.value - 1) * perPageRef.value;
-    return data.value.slice(start, start + perPageRef.value);
+    const start = (page.value - 1) * perPage.value;
+    return data.value.slice(start, start + perPage.value);
   });
 
   const visiblePages = computed(() => {
@@ -39,41 +39,11 @@ export const usePagination = <T>(
     page.value = Math.min(Math.max(newPage, 1), totalPages.value);
   }
 
-  const nextPage = () => {
-    if (page.value < totalPages.value) {
-      setPage(page.value + 1);
-    }
-  }
-
-  const prevPage = () => {
-    if (page.value > 1) {
-      setPage(page.value - 1);
-    }
-  }
-
-  const firstPage = () => {
-    setPage(1);
-  }
-
-  const lastPage = () => {
-    setPage(totalPages.value);
-  }
-
-  const updatePerPage = (newPerPage: number) => {
-    perPageRef.value = newPerPage;
-  }
-
   return { 
-    page, 
-    perPage: perPageRef, 
+    page,
     totalPages, 
     paginatedData, 
     visiblePages,
-    setPage, 
-    nextPage, 
-    prevPage, 
-    firstPage, 
-    lastPage,
-    updatePerPage
+    setPage
   };
 }

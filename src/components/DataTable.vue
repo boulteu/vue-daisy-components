@@ -2,7 +2,10 @@
   <div class="relative">
     <div class="mb-4" :class="sectionClasses">
       <div v-if="actionsConfig?.actions" :class="subSectionClasses">
-        <Actions :actions="actionsConfig.actions" @action="handleAction" />
+        <Actions
+          :actions="actionsConfig.actions"
+          @action="handleAction"
+        />
       </div>
 
       <div class="flex-1" :class="{ 'justify-center': actionsConfig?.actions, [subSectionClasses]: true }">
@@ -12,7 +15,10 @@
           </span>
 
           <div :class="subSectionClasses">
-            <Actions :actions="bulkActions" @action="handleBulkAction" />
+            <Actions
+              :actions="bulkActions"
+              @action="handleBulkAction"
+            />
           </div>
         </template>
       </div>
@@ -35,7 +41,10 @@
           @update:filters="updateFilters"
         />
 
-        <Search :value="search" @update="search = $event" />
+        <Search
+          :value="search"
+          @update="search = $event"
+        />
       </div>
     </div>
 
@@ -117,12 +126,8 @@
         :total-items="totalItems"
         :visible-pages="visiblePages"
         :config="paginationConfig"
-        @goto="setPage"
-        @update="updatePerPage($event)"
-        @next="nextPage"
-        @prev="prevPage"
-        @first="firstPage"
-        @last="lastPage"
+        @goto="handlePageChange"
+        @update="perPage = $event"
       />
     </div>
 
@@ -170,7 +175,6 @@
     'action': [action: string];
   }>();
 
-  // CSS classes
   const sectionClasses = 'flex flex-col sm:flex-row justify-between items-center gap-4';
   const subSectionClasses = 'flex items-center gap-2';
 
@@ -184,18 +188,15 @@
     ...props.paginationConfig
   } as FinalPaginationConfig;
 
-  // Search state
   const search = ref('');
+  const perPage = ref(paginationConfig.perPage);
+  const apiFilters = ref<Record<string, string[]>>({});
+  const apiSort = ref<SortState>({ column: null, ascending: true });
 
-  // Computed properties
   const isApiMode = computed(() => typeof props.data === 'string');
   const enableSelection = computed(() => !!props.selectionConfig);
   const loading = computed(() => isApiMode.value && apiLoading.value);
   const hasFilterableColumns = computed(() => props.columns.some(col => col.filterable !== false));
-
-  // API mode state
-  const apiFilters = ref<Record<string, string[]>>({});
-  const apiSort = ref<SortState>({ column: null, ascending: true });
 
   // Static data with shallowRef optimization
   const staticDataRef = shallowRef<Record<string, any>[]>([]);
@@ -208,22 +209,10 @@
   }, { immediate: true });
 
   // Data processing pipeline
-  const { filteredData: searchFiltered } = useSearch(
-    search,
-    computed(() => isApiMode.value ? [] : staticDataRef.value),
-    props.columns.map(c => c.key)
-  );
+  const { searchFilteredData } = useSearch(search, computed(() => isApiMode.value ? [] : staticDataRef.value), props.columns.map(c => c.key));
+  const { filters, filteredData, resetFilters: staticResetFilters, getDistinctValues } = useFilters(searchFilteredData, props.columns);
+  const { sort: staticSort, sortBy, sortedData } = useSort(filteredData, props.columns);
 
-  const {
-    filters: staticFilters,
-    filtered,
-    resetFilters: staticResetFilters,
-    getDistinctValues
-  } = useFilters(() => searchFiltered.value, props.columns);
-
-  const { sort: staticSort, sortBy, sortedData } = useSort(filtered, props.columns);
-
-  // API data handling
   const {
     data: apiData, 
     total: apiTotal, 
@@ -233,33 +222,17 @@
     clearCache: apiClearCache
   } = useApiData(isApiMode.value ? props.data as string : '');
 
-  // Current state (API or static)
-  const currentFilters = computed(() => isApiMode.value ? apiFilters.value : staticFilters);
+  const currentFilters = computed(() => isApiMode.value ? apiFilters.value : filters);
   const currentSort = computed(() => isApiMode.value ? apiSort.value : staticSort.value);
   const distinctValues = computed(() => isApiMode.value ? apiDistinctValues.value : getDistinctValues());
+  const paginationData = computed(() => Array.from({ length: apiTotal.value }, (_, i) => i));
 
-  // Pagination
-  const {
-    page, 
-    setPage, 
-    nextPage, 
-    prevPage, 
-    firstPage, 
-    lastPage, 
-    totalPages, 
-    visiblePages,
-    perPage,
-    updatePerPage
-  } = usePagination(
-    isApiMode.value ? computed(() => Array.from({ length: apiTotal.value }, (_, i) => i)) : sortedData,
-    paginationConfig
-  );
+  const { page, setPage, totalPages, visiblePages } = usePagination(isApiMode.value ? paginationData : sortedData, perPage, paginationConfig);
 
-  // Final data
   const finalData = computed(() => {
     if (isApiMode.value) return apiData.value || [];
-    
     if (!sortedData.value) return [];
+
     const start = (page.value - 1) * perPage.value;
     const end = start + perPage.value;
     return sortedData.value.slice(start, end);
@@ -268,10 +241,8 @@
   const totalItems = computed(() => isApiMode.value ? apiTotal.value : sortedData.value.length);
   const totalColumns = computed(() => props.columns.length + (enableSelection.value ? 1 : 0));
 
-  // Selection
   const { selectedRows, selectAll, indeterminate, toggleRow, isSelected, clearSelection } = useSelection(finalData);
 
-  // API parameters
   const apiParams = computed(() => ({
     filters: apiFilters.value,
     search: search.value,
@@ -280,17 +251,15 @@
     perPage: perPage.value
   }));
 
-  // Bulk actions
   const bulkActions = computed(() => {
     if (!enableSelection.value) return [];
     
     return [
-      { action: 'clear', variant: 'default' as const, tooltip: 'Clear Selection', icon: 'close' },
+      ...(props.selectionConfig?.clearSelection === false ? [] : [{ action: 'clear', variant: 'default' as const, tooltip: 'Clear Selection', icon: 'close' }]),
       ...(props.selectionConfig?.actions || [])
     ];
   });
 
-  // Watchers
   watch([apiFilters, search, apiSort, page, perPage], () => {
     if (isApiMode.value) {
       apiFetchData(apiParams.value);
@@ -298,44 +267,30 @@
   }, { immediate: true, deep: true });
 
   watch([perPage, search, currentFilters], () => {
-    if (!isApiMode.value) {
-      setPage(1);
-    }
-  });
+    setPage(1);
+  }, { deep: true });
 
-  // Utils
   const getColumnLabel = (col: ColumnState): string => col.label || col.key.charAt(0).toUpperCase() + col.key.slice(1);
 
   const getAriaSort = (col: ColumnState): 'ascending' | 'descending' | 'none' => {
-    if (col.sortable === false) return 'none';
-    
     const sort = currentSort.value;
-    if (sort.column !== col.key) return 'none';
-    
-    return sort.ascending ? 'ascending' : 'descending';
+    return (col.sortable === false || sort.column !== col.key) ? 'none' : (sort.ascending ? 'ascending' : 'descending');
   }
 
-  const formatCellValue = (value: any, col?: ColumnState): string => (value == null) ? '' : String(value);
+  const formatCellValue = (value: any, col?: ColumnState): string => value == null ? '' : String(value);
 
   const getExportFilename = (): string => props.exportFilename === true ? 'table-export' : (props.exportFilename as string);
 
   const updateFilters = (newFilters: Record<string, string[]>) => {
-    if (isApiMode.value) {
-      apiFilters.value = { ...newFilters };
-    } else {
-      Object.assign(staticFilters, newFilters);
-    }
+    if (isApiMode.value) apiFilters.value = { ...newFilters };
+    else Object.assign(filters, newFilters);
   }
 
   const resetFilters = () => {
-    if (isApiMode.value) {
-      apiFilters.value = {};
-    } else {
-      staticResetFilters();
-    }
+    if (isApiMode.value) apiFilters.value = {};
+    else staticResetFilters();
   }
 
-  // Event handlers
   const handleSort = (column: string) => {
     if (isApiMode.value) {
       if (apiSort.value.column === column) {
@@ -346,6 +301,11 @@
     } else {
       sortBy(column);
     }
+  }
+
+  const handlePageChange = (newPage: number) => {
+    const validPage = Math.min(Math.max(newPage, 1), totalPages.value);
+    setPage(validPage);
   }
 
   const handleAction = (action: string) => {

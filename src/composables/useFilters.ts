@@ -1,7 +1,7 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, type Ref } from 'vue';
 import type { ColumnState } from '../types';
 
-export const useFilters = (dataGetter: () => any[], columns: ColumnState[]) => {
+export const useFilters = (data: Ref<any[]>, columns: ColumnState[]) => {
   const filters = reactive<Record<string, string[]>>({});
   
   const distinctValuesCache = new Map<string, any[]>();
@@ -20,9 +20,7 @@ export const useFilters = (dataGetter: () => any[], columns: ColumnState[]) => {
   }
 
   const getDistinctValues = (): Record<string, any[]> => {
-    const data = dataGetter();
-    
-    const currentHash = JSON.stringify(data.map(row => 
+    const currentHash = JSON.stringify(data.value.map(row => 
       columns.map(col => row[col.key])
     ));
     
@@ -39,7 +37,7 @@ export const useFilters = (dataGetter: () => any[], columns: ColumnState[]) => {
     const values: Record<string, any[]> = {};
     columns.forEach(col => {
       if (col.filterable !== false) {
-        const uniqueValues = Array.from(new Set(data.map(row => row[col.key])));
+        const uniqueValues = Array.from(new Set(data.value.map(row => row[col.key])));
         values[col.key] = uniqueValues;
         distinctValuesCache.set(col.key, uniqueValues);
       }
@@ -49,16 +47,14 @@ export const useFilters = (dataGetter: () => any[], columns: ColumnState[]) => {
     return values;
   }
 
-  const filtered = computed(() => {
-    const data = dataGetter();
-    
+  const filteredData = computed(() => {
     const hasActiveFilters = Object.values(filters).some(filter => filter.length > 0);
     
     if (!hasActiveFilters) {
-      return data;
+      return data.value;
     }
     
-    const result = data.filter(row => {
+    const result = data.value.filter(row => {
       for (const col in filters) {
         const column = columns.find(c => c.key === col);
         if (column && column.filterable === false) continue;
@@ -77,7 +73,7 @@ export const useFilters = (dataGetter: () => any[], columns: ColumnState[]) => {
 
   return {
     filters,
-    filtered,
+    filteredData,
     resetFilters,
     getDistinctValues,
   };

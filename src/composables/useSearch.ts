@@ -15,7 +15,7 @@ export const useSearch = (
     }, 300);
   }, { immediate: true });
 
-  const filteredData = computed(() => {
+  const searchFilteredData = computed(() => {
     if (!debouncedSearch.value.trim()) {
       return data.value;
     }
@@ -38,5 +38,5 @@ export const useSearch = (
     });
   });
 
-  return { filteredData };
+  return { searchFilteredData };
 }

@@ -9,7 +9,7 @@
         v-if="config.showFirstLast"
         class="join-item btn btn-sm"
         :disabled="page === 1"
-        @click="$emit('first')"
+        @click="$emit('goto', 1)"
         title="First page"
       >
         ««
@@ -18,7 +18,7 @@
       <button
         class="join-item btn btn-sm"
         :disabled="page === 1"
-        @click="$emit('prev')"
+        @click="$emit('goto', page - 1)"
         title="Previous page"
       >
         «
@@ -52,7 +52,7 @@
       <button
         class="join-item btn btn-sm"
         :disabled="page === totalPages"
-        @click="$emit('next')"
+        @click="$emit('goto', page + 1)"
         title="Next page"
       >
         »
@@ -62,7 +62,7 @@
         v-if="config.showFirstLast"
         class="join-item btn btn-sm"
         :disabled="page === totalPages"
-        @click="$emit('last')"
+        @click="$emit('goto', totalPages)"
         title="Last page"
       >
         »»
@@ -97,7 +97,7 @@
     config: FinalPaginationConfig;
   }>();
 
-  const emit = defineEmits(['goto', 'update', 'next', 'prev', 'first', 'last']);
+  const emit = defineEmits(['goto', 'update']);
 
   const startItem = computed(() => (props.page - 1) * props.perPage + 1);
   const endItem = computed(() => Math.min(props.page * props.perPage, props.totalItems));
