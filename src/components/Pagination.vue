@@ -1,6 +1,6 @@
 <template>
   <div v-if="config.showPageInfo" class="text-sm text-base-content/70">
-    Showing {{ startItem }}-{{ endItem }} of {{ totalItems }} items
+    {{ t('pagination.showing') }} {{ startItem }}-{{ endItem }} {{ t('pagination.of') }} {{ totalItems }} {{ t('pagination.items') }}
   </div>
 
   <div v-if="totalPages > 1" class="flex-1 flex" :class="{ 'justify-center': config.showPageInfo }">
@@ -10,7 +10,7 @@
         class="join-item btn btn-sm"
         :disabled="page === 1"
         @click="$emit('goto', 1)"
-        title="First page"
+        :title="t('pagination.first')"
       >
         ««
       </button>
@@ -19,7 +19,7 @@
         class="join-item btn btn-sm"
         :disabled="page === 1"
         @click="$emit('goto', page - 1)"
-        title="Previous page"
+        :title="t('pagination.previous')"
       >
         «
       </button>
@@ -37,7 +37,7 @@
         class="join-item btn btn-sm"
         :class="{ 'btn-active': page === p }"
         @click="$emit('goto', p)"
-        :title="`Go to page ${p}`"
+        :title="`${t('pagination.goTo')} ${p}`"
       >
         {{ p }}
       </button>
@@ -53,7 +53,7 @@
         class="join-item btn btn-sm"
         :disabled="page === totalPages"
         @click="$emit('goto', page + 1)"
-        title="Next page"
+        :title="t('pagination.next')"
       >
         »
       </button>
@@ -63,7 +63,7 @@
         class="join-item btn btn-sm"
         :disabled="page === totalPages"
         @click="$emit('goto', totalPages)"
-        title="Last page"
+        :title="t('pagination.last')"
       >
         »»
       </button>
@@ -75,7 +75,7 @@
     @change="handlePerPageChange"
     class="select select-sm w-24 p-1 focus:outline-none focus:ring-0 focus:border-neutral"
     :class="{ 'ml-auto': totalPages <= 1 }"
-    title="Items per page"
+    :title="t('pagination.itemsPerPage')"
     name="perPage"
   >
     <option v-for="option in config.perPageOptions" :key="option" :value="option">
@@ -87,6 +87,9 @@
 <script setup lang="ts">
   import { computed } from 'vue';
   import type { FinalPaginationConfig } from '../types';
+  import { useI18n } from '../composables/useI18n';
+
+  const { t } = useI18n();
 
   const props = defineProps<{
     page: number;

@@ -11,7 +11,7 @@
       <div class="flex-1" :class="{ 'justify-center': actionsConfig?.actions, [subSectionClasses]: true }">
         <template v-if="enableSelection && selectedRows.size > 0">
           <span class="text-sm text-base-content/70">
-            {{ selectedRows.size }} selected
+            {{ selectedRows.size }} {{ t('datatable.selected') }}
           </span>
 
           <div :class="subSectionClasses">
@@ -84,7 +84,7 @@
             <td :colspan="totalColumns" class="text-center py-8">
               <div class="flex flex-col items-center gap-2">
                 <NoResultIcon class="w-8 h-8 text-base-content/60" />
-                <span class="text-base-content/70">No results found</span>
+                <span class="text-base-content/70">{{ t('datatable.noResults') }}</span>
               </div>
             </td>
           </tr>
@@ -150,11 +150,14 @@
   
   import { useApiData } from '../composables/useApiData';
   import { useFilters } from '../composables/useFilters';
+  import { useI18n } from '../composables/useI18n';
   import { usePagination } from '../composables/usePagination';
   import { useSearch } from '../composables/useSearch';
   import { useSelection } from '../composables/useSelection';
   import { useSort } from '../composables/useSort';
   import { NoResultIcon } from '../icons';
+
+  const { t } = useI18n();
 
   const props = withDefaults(defineProps<{
     columns: ColumnState[];
@@ -255,7 +258,7 @@
     if (!enableSelection.value) return [];
     
     return [
-      ...(props.selectionConfig?.clearSelection === false ? [] : [{ action: 'clear', variant: 'default' as const, tooltip: 'Clear Selection', icon: 'close' }]),
+      ...(props.selectionConfig?.clearSelection === false ? [] : [{ action: 'clear', variant: 'default' as const, tooltip: t('datatable.clearSelection'), icon: 'close' }]),
       ...(props.selectionConfig?.actions || [])
     ];
   });

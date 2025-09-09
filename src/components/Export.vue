@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown dropdown-start">
-    <div class="tooltip tooltip-bottom" data-tip="Export data">
+    <div class="tooltip tooltip-bottom" :data-tip="t('export.exportData')">
       <button class="btn btn-sm" tabindex="0">
         <DownloadIcon class="w-3 h-3" />
       </button>
@@ -8,18 +8,18 @@
     
     <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
       <li>
-        <button @click="exportCSV" class="flex items-center gap-2" title="Export as CSV">
-          <DownloadIcon class="w-4 h-4" /> Export as CSV
+        <button @click="exportCSV" class="flex items-center gap-2" :title="t('export.exportAsCSV')">
+          {{ t('export.exportAsCSV') }}
         </button>
       </li>
       <li>
-        <button @click="exportJSON" class="flex items-center gap-2" title="Export as JSON">
-          <DownloadIcon class="w-4 h-4" /> Export as JSON
+        <button @click="exportJSON" class="flex items-center gap-2" :title="t('export.exportAsJSON')">
+          {{ t('export.exportAsJSON') }}
         </button>
       </li>
       <li>
-        <button @click="exportExcel" class="flex items-center gap-2" title="Export as Excel">
-          <DownloadIcon class="w-4 h-4" /> Export as Excel
+        <button @click="exportExcel" class="flex items-center gap-2" :title="t('export.exportAsExcel')">
+          {{ t('export.exportAsExcel') }}
         </button>
       </li>
     </ul>
@@ -30,6 +30,9 @@
   import { type ColumnState } from '../types';
   import { useExport } from '../composables/useExport';
   import { DownloadIcon } from '../icons';
+  import { useI18n } from '../composables/useI18n';
+
+  const { t } = useI18n();
 
   const props = defineProps<{
     data: any[];

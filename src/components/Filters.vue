@@ -1,5 +1,5 @@
 <template>
-  <div class="tooltip tooltip-bottom" data-tip="Filter data">
+  <div class="tooltip tooltip-bottom" :data-tip="t('filters.filterData')">
     <button class="btn btn-sm" @click="showFilter = true">
       <FilterIcon class="w-3 h-3" />
       <span v-if="activeFiltersCount > 0" class="badge badge-sm ml-1 text-base-300 bg-base-content border border-base-300">
@@ -14,12 +14,12 @@
         type="button"
         class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
         @click="showFilter = false"
-        title="Close"
+        :title="t('filters.close')"
       >
         <CloseIcon class="w-4 h-4" />
       </button>
       
-      <h3 class="font-bold text-lg mb-4 pr-12">Filters</h3>
+      <h3 class="font-bold text-lg mb-4 pr-12">{{ t('filters.title') }}</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div v-for="col in filterableColumns" :key="col.key" class="space-y-2">
@@ -30,14 +30,14 @@
           <MultiSelect
             :model-value="getFilterValue(col.key)"
             :options="distinctValues[col.key] || []"
-            :placeholder="`Select ${getLabel(col)}...`"
+            :placeholder="`${t('filters.select')} ${getLabel(col)}...`"
             @update:model-value="updateFilter(col.key, $event)"
           />
         </div>
       </div>
 
       <div class="modal-action mt-6">
-        <button type="button" class="btn btn-sm" @click="resetFilters">Reset all</button>
+        <button type="button" class="btn btn-sm" @click="resetFilters">{{ t('filters.resetAll') }}</button>
       </div>
     </form>
   </dialog>
@@ -48,6 +48,9 @@
   import { CloseIcon, FilterIcon } from '../icons';
   import type { ColumnState } from '../types';
   import MultiSelect from './MultiSelect.vue';
+  import { useI18n } from '../composables/useI18n';
+
+  const { t } = useI18n();
 
   const props = defineProps<{
     columns: ColumnState[];

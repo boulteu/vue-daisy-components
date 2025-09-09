@@ -10,27 +10,27 @@
     >
       <template v-if="selectedItems.length > 0">
         <div
-          v-for="(item, index) in selectedItems.slice(0, 2)"
+          v-for="(item, index) in selectedItems.slice(0, calculatedSlices)"
           :key="`${item}-${index}`"
           class="badge badge-sm gap-1 bg-base-300 text-base-content border border-base-300 flex-shrink-0"
           :class="getBadgeWidthClass()"
         >
-          <span class="truncate" :title="item">{{ item }}</span>
+          <span class="truncate" :title="String(item)">{{ item }}</span>
           <button
             type="button"
             class="btn btn-ghost btn-xs p-0 h-4 w-4 flex-shrink-0"
             @click.stop="removeItem(item)"
-            title="Remove"
+            :title="t('multiselect.remove')"
           >
             <CloseIcon class="w-3 h-3" />
           </button>
         </div>
         
         <div
-          v-if="selectedItems.length > 2"
+          v-if="selectedItems.length > calculatedSlices"
           class="badge badge-sm bg-base-300 text-base-content border border-base-300 flex-shrink-0"
         >
-          +{{ selectedItems.length - 2 }}
+          +{{ selectedItems.length - calculatedSlices }}
         </div>
       </template>
 
@@ -39,7 +39,7 @@
         ref="searchInput"
         v-model="searchTerm"
         class="flex-1 min-w-0 bg-transparent outline-none text-sm focus:outline-none focus:ring-0"
-        :placeholder="selectedItems.length ? 'Search...' : placeholder"
+        :placeholder="selectedItems.length ? t('multiselect.search') : placeholder"
         @focus="isSearching = true"
         @blur="handleBlur"
       />
@@ -65,7 +65,7 @@
           <input
             v-model="searchTerm"
             class="input input-sm input-bordered w-full focus:outline-none focus:ring-0"
-            placeholder="Search options..."
+            :placeholder="t('multiselect.searchOptions')"
             @focus="isSearching = true"
           />
         </div>
@@ -84,14 +84,14 @@
               @click.stop
             />
             
-            <span class="flex-1">{{ option || '(Empty)' }}</span>
+            <span class="flex-1">{{ option ?? t('multiselect.empty') }}</span>
           </div>
 
           <div
             v-if="filteredOptions.length === 0"
             class="px-3 py-2 text-base-content/70 text-sm"
           >
-            No options found
+            {{ t('multiselect.noOptions') }}
           </div>
         </div>
 
@@ -101,10 +101,10 @@
             class="btn btn-ghost btn-xs"
             @click="clearSelection"
           >
-            Clear all
+            {{ t('multiselect.clearAll') }}
           </button>
           <span class="text-xs text-base-content/70">
-            {{ selectedItems.length }} selected
+            {{ selectedItems.length }} {{ t('multiselect.selected') }}
           </span>
         </div>
       </div>
@@ -113,24 +113,27 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+  import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
   import { ChevronDownIcon, CloseIcon } from '../icons';
   import CheckBox from './CheckBox.vue';
+  import { useI18n } from '../composables/useI18n';
+
+  const { t } = useI18n();
 
   const props = withDefaults(defineProps<{
-    modelValue: string[];
-    options: string[];
+    modelValue: any[];
+    options: any[];
     placeholder?: string;
     error?: boolean;
     disabled?: boolean;
   }>(), {
-    placeholder: 'Select options...',
+    placeholder: '',
     error: false,
     disabled: false
   });
 
   const emit = defineEmits<{
-    'update:modelValue': [value: string[]];
+    'update:modelValue': [value: any[]];
   }>();
 
   const inputRef = ref<HTMLDivElement>();
@@ -139,6 +142,7 @@
   const isOpen = ref(false);
   const isSearching = ref(false);
   const searchTerm = ref('');
+  const inputWidth = ref(0);
   const dropdownStyle = ref({
     top: '0px',
     left: '0px',
@@ -146,13 +150,35 @@
   });
 
   const selectedItems = computed(() => props.modelValue || []);
+  const placeholder = computed(() => props.placeholder || t('multiselect.placeholder'));
+  
   const filteredOptions = computed(() => {
     if (!searchTerm.value) return props.options;
     
     return props.options.filter(option => 
-      option.toLowerCase().includes(searchTerm.value.toLowerCase())
+      String(option).toLowerCase().includes(searchTerm.value.toLowerCase())
     );
   });
+
+  const calculatedSlices = computed(() => {
+    if (inputWidth.value === 0) return 5
+    
+    const averageTextLength = selectedItems.value.length > 0 
+      ? selectedItems.value.reduce((sum, item) => sum + String(item).length, 0) / selectedItems.value.length
+      : 8;
+    
+    const estimatedBadgeWidth = Math.max(60, averageTextLength * 8 + 40);
+    const availableWidth = inputWidth.value - 40;
+    const maxSlices = Math.floor(availableWidth / estimatedBadgeWidth);
+    
+    return Math.max(1, Math.min(maxSlices, selectedItems.value.length));
+  });
+
+  const updateInputWidth = () => {
+    if (inputRef.value) {
+      inputWidth.value = inputRef.value.getBoundingClientRect().width;
+    }
+  }
 
   const calculateDropdownPosition = () => {
     if (!inputRef.value || !dropdownRef.value) return;
@@ -206,9 +232,9 @@
     searchTerm.value = '';
   }
 
-  const isSelected = (option: string): boolean => selectedItems.value.includes(option);
+  const isSelected = (option: any): boolean => selectedItems.value.includes(option);
 
-  const toggleOption = (option: string) => {
+  const toggleOption = (option: any) => {
     const newValue = [...selectedItems.value];
     const index = newValue.indexOf(option);
     
@@ -221,7 +247,7 @@
     emit('update:modelValue', newValue);
   }
 
-  const removeItem = (item: string) => {
+  const removeItem = (item: any) => {
     const newValue = selectedItems.value.filter(i => i !== item);
     emit('update:modelValue', newValue);
   }
@@ -247,8 +273,8 @@
 
   const getBadgeWidthClass = (): string | undefined => {
     const count = selectedItems.value.length;
-    if (count > 2) return 'max-w-20';
-    if (count > 1) return 'max-w-24';
+    if (count > calculatedSlices.value) return 'max-w-20';
+    if (count > (calculatedSlices.value - 1)) return 'max-w-24';
   }
 
   const handleClickOutside = (event: Event) => {
@@ -263,12 +289,14 @@
   }
 
   const handleResize = () => {
+    updateInputWidth();
     if (isOpen.value) {
       calculateDropdownPosition();
     }
   }
 
   onMounted(() => {
+    updateInputWidth();
     document.addEventListener('click', handleClickOutside);
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleResize);

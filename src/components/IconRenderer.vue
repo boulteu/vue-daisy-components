@@ -18,8 +18,7 @@
     SearchIcon,
     SortIcon,
     SortAscIcon,
-    SortDescIcon,
-    TrashIcon
+    SortDescIcon
   } from '../icons';
 
   const props = defineProps<{
@@ -40,8 +39,7 @@
     'search': SearchIcon,
     'sort': SortIcon,
     'sort-asc': SortAscIcon,
-    'sort-desc': SortDescIcon,
-    'trash': TrashIcon
+    'sort-desc': SortDescIcon
   };
 
   const iconComponent = computed(() => {

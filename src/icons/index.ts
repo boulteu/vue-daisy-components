@@ -12,8 +12,6 @@ import SearchIcon from "./search.svg";
 import SortIcon from "./sort.svg";
 import SortAscIcon from "./sort-asc.svg";
 import SortDescIcon from "./sort-desc.svg";
-import TrashIcon from "./trash.svg";
-
 export {
   AddIcon,
   ChevronDownIcon,
@@ -28,6 +26,5 @@ export {
   SearchIcon,
   SortIcon,
   SortAscIcon,
-  SortDescIcon,
-  TrashIcon
+  SortDescIcon
 };
