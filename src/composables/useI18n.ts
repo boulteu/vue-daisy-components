@@ -40,12 +40,6 @@ const defaultTranslations: Translations = {
     of: 'of',
     items: 'items'
   },
-  actions: {
-    add: 'Add',
-    edit: 'Edit',
-    delete: 'Delete',
-    view: 'View'
-  },
   filters: {
     title: 'Filters',
     filterData: 'Filter data',
@@ -69,14 +63,14 @@ const frTranslations: Translations = {
     searchOptions: 'Rechercher des options...',
     noOptions: 'Aucune option trouvée',
     clearAll: 'Tout effacer',
-    selected: 'sélectionné',
+    selected: 'sélectionné(s)',
     remove: 'Supprimer',
     empty: '(Vide)'
   },
   datatable: {
     noResults: 'Aucun résultat trouvé',
     clearSelection: 'Effacer la sélection',
-    selected: 'sélectionné'
+    selected: 'sélectionné(s)'
   },
   pagination: {
     first: 'Première page',
@@ -88,12 +82,6 @@ const frTranslations: Translations = {
     itemsPerPage: 'Éléments par page',
     of: 'sur',
     items: 'éléments'
-  },
-  actions: {
-    add: 'Ajouter',
-    edit: 'Modifier',
-    delete: 'Supprimer',
-    view: 'Voir'
   },
   filters: {
     title: 'Filtres',
@@ -118,14 +106,14 @@ const esTranslations: Translations = {
     searchOptions: 'Buscar opciones...',
     noOptions: 'No se encontraron opciones',
     clearAll: 'Limpiar todo',
-    selected: 'seleccionado',
+    selected: 'seleccionado(s)',
     remove: 'Eliminar',
     empty: '(Vacío)'
   },
   datatable: {
     noResults: 'No se encontraron resultados',
     clearSelection: 'Limpiar selección',
-    selected: 'seleccionado'
+    selected: 'seleccionado(s)'
   },
   pagination: {
     first: 'Primera página',
@@ -137,12 +125,6 @@ const esTranslations: Translations = {
     itemsPerPage: 'Elementos por página',
     of: 'de',
     items: 'elementos'
-  },
-  actions: {
-    add: 'Agregar',
-    edit: 'Editar',
-    delete: 'Eliminar',
-    view: 'Ver'
   },
   filters: {
     title: 'Filtros',
