@@ -54,6 +54,7 @@ export interface ApiRequestParams {
   };
   page: number;
   perPage: number;
+  customParameters?: Record<string, any>;
 }
 
 export interface ApiResponse {

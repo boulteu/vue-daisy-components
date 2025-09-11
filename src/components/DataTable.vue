@@ -167,6 +167,7 @@
     exportFilename?: string | boolean;
     actionsConfig?: ActionsConfig;
     selectionConfig?: SelectionConfig;
+    customParameters?: Record<string, any>;
   }>(), {
     tableClass: 'table-zebra',
     paginationConfig: () => ({}),
@@ -251,7 +252,8 @@
     search: search.value,
     sort: apiSort.value,
     page: page.value,
-    perPage: perPage.value
+    perPage: perPage.value,
+    customParameters: props.customParameters
   }));
 
   const bulkActions = computed(() => {
