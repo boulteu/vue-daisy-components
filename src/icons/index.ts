@@ -12,6 +12,7 @@ import SearchIcon from "./search.svg";
 import SortIcon from "./sort.svg";
 import SortAscIcon from "./sort-asc.svg";
 import SortDescIcon from "./sort-desc.svg";
+
 export {
   AddIcon,
   ChevronDownIcon,

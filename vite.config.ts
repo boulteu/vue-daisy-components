@@ -1,31 +1,29 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
-import { resolve } from 'path'
+import dts from 'vite-plugin-dts'
 
 export default defineConfig({
-  plugins: [vue(), svgLoader()] as any,
+  plugins: [
+    vue(),
+    svgLoader(),
+    dts({
+      include: ['src/**/*'],
+      exclude: ['src/**/*.vue'],
+      rollupTypes: true
+    })
+  ] as any,
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'DaisyDataTable',
+      entry: 'src/index.ts',
+      name: 'VueDaisyComponents',
       fileName: (format) => `index.${format}.js`
     },
     rollupOptions: {
       external: ['vue'],
       output: {
-        globals: {
-          vue: 'Vue'
-        }
+        globals: { vue: 'Vue' }
       }
-    },
-    minify: 'terser',
-    sourcemap: true,
-    target: 'es2018'
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src')
     }
   }
 })

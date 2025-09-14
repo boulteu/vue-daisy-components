@@ -49,11 +49,3 @@
   };
 </script>
 
-<style scoped>
-  /* Align first tooltip to the left */
-  .tooltip-left-aligned::before {
-    left: 0 !important;
-    right: auto !important;
-    transform: translateX(0) !important;
-  }
-</style>

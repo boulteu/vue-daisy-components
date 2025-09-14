@@ -26,25 +26,3 @@
     'click': [event: Event];
   }>();
 </script>
-
-<style scoped>
-  .custom-checkbox:focus {
-    background-color: transparent !important;
-    border-color: hsl(var(--bc) / 0.2) !important;
-  }
-
-  .custom-checkbox:focus-visible {
-    background-color: transparent !important;
-    border-color: hsl(var(--bc) / 0.2) !important;
-  }
-
-  .custom-checkbox:indeterminate {
-    background-color: hsl(var(--bc) / 0.2) !important;
-    border-color: hsl(var(--bc) / 0.3) !important;
-  }
-
-  .custom-checkbox:checked {
-    background-color: hsl(var(--bc) / 0.2) !important;
-    border-color: hsl(var(--bc) / 0.3) !important;
-  }
-</style> 
