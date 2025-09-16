@@ -10,9 +10,14 @@ export const useSearch = (
 
   watch(searchQuery, (newValue) => {
     if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
+    
+    if (!newValue.trim()) {
       debouncedSearch.value = newValue;
-    }, 300);
+    } else {
+      debounceTimer = setTimeout(() => {
+        debouncedSearch.value = newValue;
+      }, 300);
+    }
   }, { immediate: true });
 
   const searchFilteredData = computed(() => {

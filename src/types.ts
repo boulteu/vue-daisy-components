@@ -3,6 +3,7 @@ export interface ColumnState {
   label?: string;
   sortable?: boolean;
   filterable?: boolean;
+  searchable?: boolean;
 }
 
 export interface PaginationConfig {

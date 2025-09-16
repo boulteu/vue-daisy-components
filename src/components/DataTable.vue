@@ -42,6 +42,7 @@
         />
 
         <Search
+          v-if="hasSearchableColumns"
           :value="search"
           @update="search = $event"
         />
@@ -110,7 +111,7 @@
                 :column="col" 
                 :value="row[col.key]"
               >
-                <span>{{ formatCellValue(row[col.key]) }}</span>
+                <span>{{ row[col.key] == null ? '' : String(row[col.key]) }}</span>
               </slot>
             </td>
           </tr>
@@ -201,6 +202,7 @@
   const enableSelection = computed(() => !!props.selectionConfig);
   const loading = computed(() => isApiMode.value && apiLoading.value);
   const hasFilterableColumns = computed(() => props.columns.some(col => col.filterable !== false));
+  const hasSearchableColumns = computed(() => props.columns.some(col => col.searchable !== false));
 
   // Static data with shallowRef optimization
   const staticDataRef = shallowRef<Record<string, any>[]>([]);
@@ -213,7 +215,7 @@
   }, { immediate: true });
 
   // Data processing pipeline
-  const { searchFilteredData } = useSearch(search, computed(() => isApiMode.value ? [] : staticDataRef.value), props.columns.map(c => c.key));
+  const { searchFilteredData } = useSearch(search, computed(() => isApiMode.value ? [] : staticDataRef.value), props.columns.filter(col => col.searchable !== false).map(c => c.key));
   const { filters, filteredData, resetFilters: staticResetFilters, getDistinctValues } = useFilters(searchFilteredData, props.columns);
   const { sort: staticSort, sortBy, sortedData } = useSort(filteredData, props.columns);
 
@@ -281,8 +283,6 @@
     const sort = currentSort.value;
     return (col.sortable === false || sort.column !== col.key) ? 'none' : (sort.ascending ? 'ascending' : 'descending');
   }
-
-  const formatCellValue = (value: any, col?: ColumnState): string => value == null ? '' : String(value);
 
   const getExportFilename = (): string => props.exportFilename === true ? 'table-export' : (props.exportFilename as string);
 
