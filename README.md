@@ -2,16 +2,12 @@
 
 A comprehensive collection of Vue 3 components styled with Tailwind CSS and DaisyUI. Built with TypeScript, these components are designed for performance, accessibility, and developer experience.
 
-## ✨ Features
-
+- 📱 **Responsive** - Mobile-first design with responsive components
 - 🚀 **Performance** - Optimized for speed with lazy loading and efficient rendering
 - 🎨 **Design** - Styled with DaisyUI, and adapt to your theme for seamless integration
 - ⚡ **TypeScript** - Full TypeScript support with comprehensive type definitions
-- 🌍 **Internationalization** - Automatic language detection based on HTML lang attribute
-- 📱 **Responsive** - Mobile-first design with responsive components
-- ♿ **Accessible** - Built with accessibility in mind
 
-## 📦 Installation
+## 📦 Setup
 
 ### Prerequisites
 
@@ -21,7 +17,7 @@ Make sure you have the following dependencies installed:
 npm install vue@^3.5.18 tailwindcss@^4.1.12 daisyui@^5.0.50
 ```
 
-### Install Package
+### Installation
 
 ```bash
 npm install vue-daisy-components
@@ -34,7 +30,6 @@ npm install vue-daisy-components
 Add to your main CSS file:
 
 ```css
-/* Add to your main CSS file */
 @import "tailwindcss";
 @plugin "daisyui";
 
@@ -56,9 +51,13 @@ export default {
 }
 ```
 
-## 🌍 Internationalization
+## 🌍 Internationalization (i18n)
 
-All components automatically adapt to the page language (based on the HTML lang attribute) if translations are available (if not, the default language is English). Available translations: English, French, Spanish.
+All components automatically adapt to the page language (based on the HTML lang attribute) if translations are available (if not, the default language is English). Available translations:
+
+- English 🇬🇧
+- French 🇫🇷
+- Spanish 🇪🇸
 
 ## 🧩 Components
 
@@ -74,7 +73,7 @@ import { DataTable } from 'vue-daisy-components'
 
 #### Basic Usage
 
-A simple data table with basic functionality. All props above are required.
+A simple data table with basic functionality.
 
 ```vue
 <template>
@@ -101,37 +100,6 @@ A simple data table with basic functionality. All props above are required.
 </script>
 ```
 
-#### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `data` | `Object[] \| String` | - | Array of data objects (represents the table rows), see [Advanced](#advanced) for more info about the String usage |
-| `columns` | `Object[]` | - | Array of column definitions (represents the table columns) |
-| `paginationConfig` | `Object` | - | Pagination configuration |
-| `tableClass` | `String` | `table-zebra` | Defines the table classes, can be tailwind/daisyui classes but custom classes are also supported |
-| `exportFilename` | `String \| Boolean` | `table-export` | Defines the filename of the exported file. If false, the export button will disappear. |
-| `actionsConfig` | `Object` | - | Defines the actions buttons to be displayed in the table |
-| `selectionConfig` | `Object` | - | Defines the selection buttons to be displayed in the table |
-
-#### Column Configuration
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `key` | `String` | - | Column key (will be capitalized and used as the column header if no label, e.g. 'email' becomes 'Email') |
-| `label` | `String` | - | Defines the column header label (default value: capitalized column key) |
-| `sortable` | `Boolean` | `true` | Defines if the column is sortable |
-| `filterable` | `Boolean` | `true` | Defines if the column is filterable, if all columns are not filterable, the filter button will disappear |
-
-#### Pagination Configuration
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `maxVisiblePages` | `Number` | `5` | Number of page buttons to display |
-| `showFirstLast` | `Boolean` | `true` | Show first/last page navigation buttons |
-| `showPageInfo` | `Boolean` | `true` | Display current page information |
-| `perPageOptions` | `Number[]` | `[5, 10, 25, 50]` | Array of items per page options |
-| `perPage` | `Number` | `10` | Default number of items per page |
-
 #### Features
 
 - **Pagination** - Data table with pagination controls
@@ -144,18 +112,75 @@ A simple data table with basic functionality. All props above are required.
 - **Row Selection** - Select multiple rows with checkboxes
 - **Advanced** - Load data from an API endpoint (POST only)
 
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `Object[] \| String` | - | Array of data objects (represents the table rows), see [API Mode](#api-mode) for String usage |
+| `columns` | `Object[]` | - | Array of column definitions (represents the table columns) |
+| `columns[].key` | `String` | - | Unique identifier for the column |
+| `columns[].label` | `String` | - | Display label for the column header (default value: capitalized column key) |
+| `columns[].sortable` | `Boolean` | `true` | Enable sorting for this column |
+| `columns[].filterable` | `Boolean` | `true` | Enable filtering for this column |
+| `columns[].searchable` | `Boolean` | `true` | Include this column in global search |
+| `paginationConfig` | `Object` | - | Pagination configuration |
+| `paginationConfig.maxVisiblePages` | `Number` | `5` | Maximum number of page buttons to show |
+| `paginationConfig.showFirstLast` | `Boolean` | `true` | Show first/last page buttons |
+| `paginationConfig.showPageInfo` | `Boolean` | `true` | Show current page info text |
+| `paginationConfig.perPageOptions` | `Number[]` | `[5,10,25,50]` | Available items per page options |
+| `paginationConfig.perPage` | `Number` | `10` | Default items per page |
+| `tableClass` | `String` | `table-zebra` | Defines the table classes, can be tailwind/daisyui classes but custom classes are also supported |
+| `exportFilename` | `String \| Boolean` | `table-export` | Defines the filename of the exported file. If false, the export button will disappear |
+| `actionsConfig` | `Object` | - | Defines the actions buttons to be displayed in the table |
+| `actionsConfig.actions` | `Object[]` | - | Array of action button configurations |
+| `actionsConfig.actions[].action` | `String` | - | Action identifier |
+| `actionsConfig.actions[].variant` | `String` | - | Button variant (success, warning, etc) |
+| `actionsConfig.actions[].icon` | `String` | - | Button icon name |
+| `actionsConfig.actions[].tooltip` | `String` | - | Button hover tooltip |
+| `actionsConfig.actions[].disabled` | `Boolean` | `false` | Whether the action button is disabled |
+| `selectionConfig` | `Object` | - | Defines the selection buttons to be displayed in the table |
+| `selectionConfig.actions` | `Object[]` | - | Array of bulk action button configurations (same properties than `actionsConfig.actions`) |
+| `selectionConfig.clearSelection` | `Boolean` | `true` | Show the clear selection button |
+| `customParameters` | `Object` | - | Defines the additional parameters to be sent to the API |
+
 #### Events
 
 | Event | Description |
 |-------|-------------|
 | `@action` | Fired when an action button is clicked |
-| `@bulk-action` | Fired when a bulk action is performed on selected rows |
+| `@bulk-action` | Fired when a bulk action button is clicked |
 
 #### Methods
 
 | Method | Description |
 |--------|-------------|
 | `reloadData()` | Clear cache and reload data (API mode only) |
+
+#### API Mode
+
+When using a string URL for the `data` prop, the DataTable will make POST requests to fetch data. The API should handle the following parameters:
+
+### Request Payload
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `filters` | `Object` | Filters values to apply to the request |
+| `page` | `Number` | Page number |
+| `perPage` | `Number` | Items per page |
+| `search` | `String` | Search term to apply to the request |
+| `sort` | `Object` | Sort order to apply to the request |
+| `customParameters` | `Object` | Additional parameters to be sent to the API |
+
+### Response Structure
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data` | `Object[]` | Data returned from the request |
+| `distinctValues` | `Object` | Distinct values of the columns (for the filters) |
+| `page` | `Number` | Page number |
+| `perPage` | `Number` | Items per page |
+| `total` | `Number` | Total number of items |
+| `totalPages` | `Number` | Total number of pages |
 
 ### MultiSelect
 
@@ -187,32 +212,6 @@ Simple multi-selection with predefined options.
   const selected = ref([])
 </script>
 ```
-
-## 🔧 API Mode
-
-When using a string URL for the `data` prop, the DataTable will make POST requests to fetch data. The API should handle the following parameters:
-
-### Request Payload
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `filters` | `Object` | Filters values to apply to the request |
-| `page` | `Number` | Page number |
-| `perPage` | `Number` | Items per page |
-| `search` | `String` | Search term to apply to the request |
-| `sort` | `Object` | Sort order to apply to the request |
-| `customParameters` | `Object` | Additional parameters to be sent to the API |
-
-### Response Structure
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `data` | `Object[]` | Data returned from the request |
-| `distinctValues` | `Object` | Distinct values of the columns (for the filters) |
-| `page` | `Number` | Page number |
-| `perPage` | `Number` | Items per page |
-| `total` | `Number` | Total number of items |
-| `totalPages` | `Number` | Total number of pages |
 
 ## 📄 License
 
