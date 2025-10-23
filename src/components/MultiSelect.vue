@@ -8,9 +8,9 @@
       tabindex="0"
       ref="inputRef"
     >
-      <template v-if="selectedItems.length > 0">
+      <template v-if="(selectedItems as any).length > 0">
         <div
-          v-for="(item, index) in selectedItems.slice(0, calculatedSlices)"
+          v-for="(item, index) in (selectedItems as any).slice(0, calculatedSlices)"
           :key="`${item}-${index}`"
           class="badge badge-sm gap-1 bg-base-300 text-base-content border border-base-300 flex-shrink-0"
           :class="getBadgeWidthClass()"
@@ -27,20 +27,20 @@
         </div>
         
         <div
-          v-if="selectedItems.length > calculatedSlices"
+          v-if="(selectedItems as any).length > calculatedSlices"
           class="badge badge-sm bg-base-300 text-base-content border border-base-300 flex-shrink-0"
         >
-          +{{ selectedItems.length - calculatedSlices }}
+          +{{ (selectedItems as any).length - (calculatedSlices as any) }}
         </div>
       </template>
 
       <input
-        v-if="!selectedItems.length || isSearching"
+        v-if="!(selectedItems as any).length || isSearching"
         ref="searchInput"
         v-model="searchTerm"
         class="flex-1 min-w-0 bg-transparent outline-none text-sm focus:outline-none focus:ring-0"
-        :placeholder="selectedItems.length ? t('multiselect.search') : placeholder"
-        @focus="isSearching = true"
+        :placeholder="(selectedItems as any).length ? t('multiselect.search') : (placeholder as any)"
+        @focus="(isSearching as any) = true"
         @blur="handleBlur"
       />
 
@@ -59,20 +59,20 @@
         v-if="isOpen"
         class="fixed bg-base-100 border border-base-300 rounded-lg shadow-lg z-[9999] max-h-60 overflow-auto"
         ref="dropdownRef"
-        :style="dropdownStyle"
+        :style="(dropdownStyle as any)"
       >
-        <div v-if="selectedItems.length" class="p-2 border-b border-base-300 focus-within:outline-none focus-within:ring-0">
+        <div v-if="(selectedItems as any).length" class="p-2 border-b border-base-300 focus-within:outline-none focus-within:ring-0">
           <input
             v-model="searchTerm"
             class="input input-sm input-bordered w-full focus:outline-none focus:ring-0"
             :placeholder="t('multiselect.searchOptions')"
-            @focus="isSearching = true"
+            @focus="(isSearching as any) = true"
           />
         </div>
 
         <div class="py-1">
           <div
-            v-for="option in filteredOptions"
+            v-for="option in (filteredOptions as any)"
             :key="option"
             class="px-3 py-2 cursor-pointer hover:bg-base-200 flex items-center gap-2"
             :class="{ 'bg-base-300 text-base-content': isSelected(option) }"
@@ -88,14 +88,14 @@
           </div>
 
           <div
-            v-if="filteredOptions.length === 0"
+            v-if="(filteredOptions as any).length === 0"
             class="px-3 py-2 text-base-content/70 text-sm"
           >
             {{ t('multiselect.noOptions') }}
           </div>
         </div>
 
-        <div v-if="selectedItems.length" class="p-2 border-t border-base-300 flex justify-between">
+        <div v-if="(selectedItems as any).length" class="p-2 border-t border-base-300 flex justify-between">
           <button
             type="button"
             class="btn btn-ghost btn-xs"
@@ -104,7 +104,7 @@
             {{ t('multiselect.clearAll') }}
           </button>
           <span class="text-xs text-base-content/70">
-            {{ selectedItems.length }} {{ t('multiselect.selected') }}
+            {{ (selectedItems as any).length }} {{ t('multiselect.selected') }}
           </span>
         </div>
       </div>

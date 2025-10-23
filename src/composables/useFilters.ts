@@ -63,7 +63,8 @@ export const useFilters = (data: Ref<any[]>, columns: ColumnState[]) => {
         if (selected.length === 0) continue;
         
         const val = String(row[col] ?? '');
-        if (!selected.includes(val)) return false;
+        const selectedStrings = selected.map(s => String(s));
+        if (!selectedStrings.includes(val)) return false;
       }
       return true;
     });

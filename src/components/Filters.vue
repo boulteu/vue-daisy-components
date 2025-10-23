@@ -1,19 +1,19 @@
 <template>
   <div class="tooltip tooltip-bottom" :data-tip="t('filters.filterData')">
-    <button class="btn btn-sm" @click="showFilter = true">
+    <button class="btn btn-sm" @click="showFilter = (true as any)">
       <FilterIcon class="w-3 h-3" />
-      <span v-if="activeFiltersCount > 0" class="badge badge-sm ml-1 text-base-300 bg-base-content border border-base-300">
+      <span v-if="(activeFiltersCount as any) > 0" class="badge badge-sm ml-1 text-base-300 bg-base-content border border-base-300">
         {{ activeFiltersCount }}
       </span>
     </button>
   </div>
 
-  <dialog class="modal" :open="showFilter" @click.self="showFilter = false">
+  <dialog class="modal" :open="(showFilter as any)" @click.self="showFilter = (false as any)">
     <form method="dialog" class="modal-box max-w-4xl max-h-[80vh] overflow-auto relative">
       <button
         type="button"
         class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
-        @click="showFilter = false"
+        @click="showFilter = (false as any)"
         :title="t('filters.close')"
       >
         <CloseIcon class="w-4 h-4" />
@@ -22,7 +22,7 @@
       <h3 class="font-bold text-lg mb-4 pr-12">{{ t('filters.title') }}</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div v-for="col in filterableColumns" :key="col.key" class="space-y-2">
+        <div v-for="col in (filterableColumns as any)" :key="col.key" class="space-y-2">
           <label class="label font-semibold mb-1">
             {{ getLabel(col) }}
           </label>

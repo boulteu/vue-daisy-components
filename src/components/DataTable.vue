@@ -9,14 +9,14 @@
       </div>
 
       <div class="flex-1" :class="{ 'justify-center': actionsConfig?.actions, [subSectionClasses]: true }">
-        <template v-if="enableSelection && selectedRows.size > 0">
+        <template v-if="enableSelection && (selectedRows as any).size > 0">
           <span class="text-sm text-base-content/70">
-            {{ selectedRows.size }} {{ t('datatable.selected') }}
+            {{ (selectedRows as any).size }} {{ t('datatable.selected') }}
           </span>
 
           <div :class="subSectionClasses">
             <Actions
-              :actions="bulkActions"
+              :actions="(bulkActions as any)"
               @action="handleBulkAction"
             />
           </div>
@@ -26,7 +26,7 @@
       <div :class="subSectionClasses">
         <Export
           v-if="exportFilename !== false"
-          :data="finalData"
+          :data="(finalData as any)"
           :columns="columns"
           :filename="getExportFilename()"
         />
@@ -34,8 +34,8 @@
         <Filters
           v-if="hasFilterableColumns"
           :columns="columns"
-          :filters="currentFilters"
-          :distinctValues="distinctValues"
+          :filters="(currentFilters as any)"
+          :distinctValues="(distinctValues as any)"
           :resetFilters="resetFilters"
           :getLabel="getColumnLabel"
           @update:filters="updateFilters"
@@ -43,7 +43,7 @@
 
         <Search
           v-if="hasSearchableColumns"
-          :value="search"
+          :value="(search as any)"
           @update="search = $event"
         />
       </div>
@@ -55,9 +55,9 @@
           <tr>
             <th v-if="enableSelection" class="w-12">
               <CheckBox
-                :checked="selectAll"
-                :indeterminate="indeterminate"
-                @update:checked="selectAll = $event"
+                :checked="(selectAll as any)"
+                :indeterminate="(indeterminate as any)"
+                @update:checked="selectAll = ($event as any)"
               />
             </th>
 
@@ -72,7 +72,7 @@
                 {{ getColumnLabel(col) }}
                 <Sort
                   v-if="col.sortable !== false"
-                  :sort="currentSort"
+                  :sort="(currentSort as any)"
                   :column="col.key"
                 />
               </div>
@@ -81,8 +81,8 @@
         </thead>
 
         <tbody>
-          <tr v-if="finalData.length === 0">
-            <td :colspan="totalColumns" class="text-center py-8">
+          <tr v-if="(finalData as any).length === 0">
+            <td :colspan="(totalColumns as any)" class="text-center py-8">
               <div class="flex flex-col items-center gap-2">
                 <NoResultIcon class="w-8 h-8 text-base-content/60" />
                 <span class="text-base-content/70">{{ t('datatable.noResults') }}</span>
@@ -91,7 +91,7 @@
           </tr>
 
           <tr 
-            v-for="(row, i) in finalData" 
+            v-for="(row, i) in (finalData as any)" 
             :key="i"
             :class="{ '!bg-base-300': isSelected(i) }"
             @click="enableSelection && toggleRow(i)"
@@ -121,11 +121,11 @@
 
     <div class="mt-4" :class="sectionClasses">
       <Pagination
-        :page="page"
-        :total-pages="totalPages"
-        :per-page="perPage"
-        :total-items="totalItems"
-        :visible-pages="visiblePages"
+        :page="(page as any)"
+        :total-pages="(totalPages as any)"
+        :per-page="(perPage as any)"
+        :total-items="(totalItems as any)"
+        :visible-pages="(visiblePages as any)"
         :config="paginationConfig"
         @goto="handlePageChange"
         @update="perPage = $event"
