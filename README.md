@@ -75,7 +75,7 @@ import { DataTable } from 'vue-daisy-components'
 
 A simple data table with basic functionality.
 
-```vue
+```html
 <template>
   <DataTable
     :data="data"
@@ -196,7 +196,7 @@ import { MultiSelect } from 'vue-daisy-components'
 
 Simple multi-selection with predefined options.
 
-```vue
+```html
 <template>
   <MultiSelect
     :options="options"
