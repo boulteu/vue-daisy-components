@@ -14,7 +14,7 @@ A comprehensive collection of Vue 3 components styled with Tailwind CSS and Dais
 Make sure you have the following dependencies installed:
 
 ```bash
-npm install vue@^3.5.18 tailwindcss@^4.1.12 daisyui@^5.0.50
+npm install vue@^3.5.21 tailwindcss@^4.1.12 daisyui@^5.0.50
 ```
 
 ### Installation
