@@ -11,6 +11,7 @@
         :disabled="page === 1"
         @click="$emit('goto', 1)"
         :title="t('pagination.first')"
+        :aria-label="t('pagination.first')"
       >
         ««
       </button>
@@ -20,6 +21,7 @@
         :disabled="page === 1"
         @click="$emit('goto', page - 1)"
         :title="t('pagination.previous')"
+        :aria-label="t('pagination.previous')"
       >
         «
       </button>
@@ -38,6 +40,7 @@
         :class="{ 'btn-active': page === p }"
         @click="$emit('goto', p)"
         :title="`${t('pagination.goTo')} ${p}`"
+        :aria-label="`${t('pagination.goTo')} ${p}`"
       >
         {{ p }}
       </button>
@@ -54,6 +57,7 @@
         :disabled="page === totalPages"
         @click="$emit('goto', page + 1)"
         :title="t('pagination.next')"
+        :aria-label="t('pagination.next')"
       >
         »
       </button>
@@ -64,6 +68,7 @@
         :disabled="page === totalPages"
         @click="$emit('goto', totalPages)"
         :title="t('pagination.last')"
+        :aria-label="t('pagination.last')"
       >
         »»
       </button>

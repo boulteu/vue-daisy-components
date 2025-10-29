@@ -11,6 +11,7 @@
       :class="getButtonClass(action.variant)"
       :disabled="action.disabled"
       @click="$emit('action', action.action)"
+      :aria-label="action.action"
     >
       <IconRenderer
         v-if="action.icon"

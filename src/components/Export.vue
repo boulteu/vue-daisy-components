@@ -1,24 +1,24 @@
 <template>
   <div class="dropdown dropdown-start">
     <div class="tooltip tooltip-bottom" :data-tip="t('export.exportData')">
-      <button class="btn btn-sm" tabindex="0">
+      <button class="btn btn-sm" tabindex="0" :aria-label="t('export.exportData')">
         <DownloadIcon class="w-3 h-3" />
       </button>
     </div>
     
     <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
       <li>
-        <button @click="exportCSV" class="flex items-center gap-2" :title="t('export.exportAsCSV')">
+        <button @click="exportCSV" class="flex items-center gap-2" :title="t('export.exportAsCSV')" :aria-label="t('export.exportAsCSV')">
           {{ t('export.exportAsCSV') }}
         </button>
       </li>
       <li>
-        <button @click="exportJSON" class="flex items-center gap-2" :title="t('export.exportAsJSON')">
+        <button @click="exportJSON" class="flex items-center gap-2" :title="t('export.exportAsJSON')" :aria-label="t('export.exportAsJSON')">
           {{ t('export.exportAsJSON') }}
         </button>
       </li>
       <li>
-        <button @click="exportExcel" class="flex items-center gap-2" :title="t('export.exportAsExcel')">
+        <button @click="exportExcel" class="flex items-center gap-2" :title="t('export.exportAsExcel')" :aria-label="t('export.exportAsExcel')">
           {{ t('export.exportAsExcel') }}
         </button>
       </li>

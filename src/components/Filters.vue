@@ -1,6 +1,6 @@
 <template>
   <div class="tooltip tooltip-bottom" :data-tip="t('filters.filterData')">
-    <button class="btn btn-sm" @click="showFilter = (true as any)">
+    <button class="btn btn-sm" @click="showFilter = (true as any)" :aria-label="t('filters.filterData')">
       <FilterIcon class="w-3 h-3" />
       <span v-if="(activeFiltersCount as any) > 0" class="badge badge-sm ml-1 text-base-300 bg-base-content border border-base-300">
         {{ activeFiltersCount }}
@@ -15,6 +15,7 @@
         class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
         @click="showFilter = (false as any)"
         :title="t('filters.close')"
+        :aria-label="t('filters.close')"
       >
         <CloseIcon class="w-4 h-4" />
       </button>
@@ -37,7 +38,7 @@
       </div>
 
       <div class="modal-action mt-6">
-        <button type="button" class="btn btn-sm" @click="resetFilters">{{ t('filters.resetAll') }}</button>
+        <button type="button" class="btn btn-sm" @click="resetFilters" :aria-label="t('filters.resetAll')">{{ t('filters.resetAll') }}</button>
       </div>
     </form>
   </dialog>

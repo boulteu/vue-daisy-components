@@ -21,6 +21,7 @@
             class="btn btn-ghost btn-xs p-0 h-4 w-4 flex-shrink-0"
             @click.stop="removeItem(item)"
             :title="t('multiselect.remove')"
+            :aria-label="t('multiselect.remove')"
           >
             <CloseIcon class="w-3 h-3" />
           </button>
@@ -49,6 +50,7 @@
         class="btn btn-ghost btn-xs p-0 h-4 w-4 ml-auto"
         @click.stop="toggleDropdown"
         :class="{ 'rotate-180': isOpen }"
+        :aria-label="t('multiselect.toggleDropdown')"
       >
         <ChevronDownIcon class="w-3 h-3" />
       </button>
@@ -100,6 +102,7 @@
             type="button"
             class="btn btn-ghost btn-xs"
             @click="clearSelection"
+            :aria-label="t('multiselect.clearAll')"
           >
             {{ t('multiselect.clearAll') }}
           </button>

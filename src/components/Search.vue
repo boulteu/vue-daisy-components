@@ -1,5 +1,5 @@
 <template>
-  <div class="input input-sm w-48 focus-within:outline-none focus-within:ring-0">
+  <label class="input input-sm w-48 focus-within:outline-none focus-within:ring-0">
     <SearchIcon class="w-6 h-6 text-base-content/60" />
     <input
       type="search"
@@ -7,7 +7,7 @@
       @input="$emit('update', ($event.target as HTMLInputElement).value)"
       class="px-0 w-full focus:outline-none focus:ring-0"
     />
-  </div>
+  </label>
 </template>
 
 <script setup lang="ts">
