@@ -6,13 +6,17 @@
       :value="value"
       @input="$emit('update', ($event.target as HTMLInputElement).value)"
       class="px-0 w-full focus:outline-none focus:ring-0"
+      :aria-label="t('multiselect.search')"
     />
   </label>
 </template>
 
 <script setup lang="ts">
   import { SearchIcon } from '../icons';
+  import { useI18n } from '../composables/useI18n';
 
+  const { t } = useI18n();
+  
   defineProps<{
     value: string;
   }>();

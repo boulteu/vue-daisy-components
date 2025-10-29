@@ -10,11 +10,16 @@
       :indeterminate="indeterminate"
       @change="$emit('update:checked', ($event.target as HTMLInputElement).checked)"
       @click="$emit('click', $event)"
+      :aria-label="t('filters.select')"
     />
   </label>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from '../composables/useI18n';
+
+  const { t } = useI18n();
+
   withDefaults(defineProps<{
     checked?: boolean;
     indeterminate?: boolean;
